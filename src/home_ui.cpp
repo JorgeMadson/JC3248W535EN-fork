@@ -8,6 +8,7 @@
 #include "air_ui.h"
 #include "ambient_ui.h"
 #include "breakout_ui.h"
+#include "placar_ui.h"
 #include "clock_ui.h"
 #include "files_ui.h"
 #include "music_ui.h"
@@ -58,9 +59,11 @@ static void home_timer_cb(lv_timer_t *t) {
         }
     }
     lv_label_set_text(s_weather_tile_temp, weather_ui_tile_text());
-    lv_color_t air_color;
-    lv_label_set_text(s_air_tile_val, air_ui_tile_text(&air_color));
-    lv_obj_set_style_bg_color(lv_obj_get_parent(s_air_tile_val), air_color, 0); /* tile colour = radon level */
+    if (s_air_tile_val) { /* Air saiu da tela inicial (lugar do Placar); fica o código */
+        lv_color_t air_color;
+        lv_label_set_text(s_air_tile_val, air_ui_tile_text(&air_color));
+        lv_obj_set_style_bg_color(lv_obj_get_parent(s_air_tile_val), air_color, 0); /* tile colour = radon level */
+    }
 
     const time_t now = time(nullptr);
     if (now < 1700000000) {
@@ -154,9 +157,8 @@ void home_ui_init(void) {
                        lv_palette_main(LV_PALETTE_INDIGO), radio_ui_open);
     (void)add_app_tile(apps, LV_SYMBOL_PLAY, &lv_font_montserrat_28, "Breakout",
                        lv_palette_main(LV_PALETTE_DEEP_PURPLE), breakout_ui_open);
-    lv_color_t air_color;
-    const char *air_text = air_ui_tile_text(&air_color);
-    s_air_tile_val = add_app_tile(apps, air_text, &lv_font_montserrat_24, "Air", air_color, air_ui_open);
+    (void)add_app_tile(apps, LV_SYMBOL_LIST, &lv_font_montserrat_30, "Placar", lv_palette_main(LV_PALETTE_RED),
+                       placar_ui_open);
     (void)add_app_tile(apps, LV_SYMBOL_SETTINGS, &lv_font_montserrat_30, "Settings",
                        lv_palette_main(LV_PALETTE_BLUE_GREY), settings_ui_open);
     (void)add_app_tile(apps, LV_SYMBOL_IMAGE, &lv_font_montserrat_30, "Ambient",

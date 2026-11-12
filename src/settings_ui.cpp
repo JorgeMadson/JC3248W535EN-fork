@@ -27,6 +27,7 @@ struct TzOption {
 /* POSIX strings must stay stable: the saved /timezone.ini value is matched against them. */
 static const TzOption k_timezones[] = {
     {"UTC", "UTC0"},
+    {"Brasilia (UTC-3)", "<-03>3"},
     {"US Eastern", "EST5EDT,M3.2.0,M11.1.0"},
     {"US Central", "CST6CDT,M3.2.0,M11.1.0"},
     {"US Mountain", "MST7MDT,M3.2.0,M11.1.0"},

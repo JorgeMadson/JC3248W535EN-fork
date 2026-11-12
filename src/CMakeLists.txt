@@ -5,10 +5,23 @@
 # them requirements of this component).
 file(GLOB_RECURSE app_sources ${CMAKE_SOURCE_DIR}/src/*.c ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
+# Placar de mesa: lógica, telas e jogos vêm direto do projeto placar-mesa (um código só para os dois
+# firmwares); só o Pintor (src/placar/) é deste launcher. A pasta hal/ do placar-mesa fica de fora.
+set(PLACAR_DIR "${CMAKE_SOURCE_DIR}/../JC3248W535/placar-mesa" CACHE PATH "Pasta do projeto placar-mesa")
+file(GLOB_RECURSE placar_sources
+     ${PLACAR_DIR}/lib/nucleo/*.cpp ${PLACAR_DIR}/src/ui/*.cpp ${PLACAR_DIR}/src/telas/*.cpp
+     ${PLACAR_DIR}/src/jogos/*.cpp)
+if(NOT placar_sources)
+    message(FATAL_ERROR "placar-mesa não encontrado em ${PLACAR_DIR}")
+endif()
+list(APPEND app_sources ${placar_sources})
+set(placar_includes "placar" "${PLACAR_DIR}/lib/nucleo" "${PLACAR_DIR}/src/ui" "${PLACAR_DIR}/src/telas"
+    "${PLACAR_DIR}/src/jogos")
+
 # REQUIRES: the ESP-IDF components the sources include. Only these (and what they need) are built,
 # see the top-level CMakeLists.txt.
 idf_component_register(SRCS ${app_sources}
-                       INCLUDE_DIRS "." "../include"
+                       INCLUDE_DIRS "." "../include" ${placar_includes}
                        REQUIRES
                            lvgl ArduinoJson jpegdec pngdec  # lib_deps (components/)
                            app_update                  # OTA slots and rollback (ota_update)
