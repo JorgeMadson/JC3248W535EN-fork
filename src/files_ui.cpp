@@ -1,4 +1,5 @@
 #include "files_ui.h"
+#include "fontes_pt.h"
 
 #include "sd_card.h"
 #include <dirent.h>
@@ -172,8 +173,8 @@ static void open_file(const Entry &e) {
     const std::string path = join_path(s_cwd, e.name);
     const int fd = sd_open_read(path.c_str());
     if (fd < 0) {
-        lv_obj_set_style_text_font(s_view_body, &lv_font_montserrat_16, 0);
-        lv_label_set_text(s_view_body, "Could not open this file.");
+        lv_obj_set_style_text_font(s_view_body, &pt_montserrat_16, 0);
+        lv_label_set_text(s_view_body, "Não deu para abrir este arquivo.");
         lv_scr_load(s_view_scr);
         return;
     }
@@ -201,24 +202,24 @@ static void open_file(const Entry &e) {
     fmt_size(size, sizeof(size), e.size);
     if (text) {
         /* Montserrat is compact for ASCII; the SD UI font is needed for CJK and other UTF-8. */
-        lv_obj_set_style_text_font(s_view_body, has_non_ascii(buf) ? ui_font_get() : &lv_font_montserrat_14, 0);
+        lv_obj_set_style_text_font(s_view_body, has_non_ascii(buf) ? ui_font_get() : &pt_montserrat_14, 0);
         if (got == 0) {
-            lv_label_set_text(s_view_body, "(empty file)");
+            lv_label_set_text(s_view_body, "(arquivo vazio)");
         } else if (e.size > k_max_text) {
-            const std::string s = std::string(buf) + "\n\n... (showing first 16 KB of " + size + ")";
+            const std::string s = std::string(buf) + "\n\n... (mostrando os primeiros 16 KB de " + size + ")";
             lv_label_set_text(s_view_body, s.c_str());
         } else {
             lv_label_set_text(s_view_body, buf);
         }
     } else {
-        char when[32] = "unknown";
+        char when[32] = "desconhecida";
         if (e.mtime > 0) {
             struct tm ti;
             localtime_r(&e.mtime, &ti);
             strftime(when, sizeof(when), "%Y-%m-%d %H:%M", &ti);
         }
-        lv_obj_set_style_text_font(s_view_body, &lv_font_montserrat_16, 0);
-        lv_label_set_text_fmt(s_view_body, "Size  %s\nModified  %s\nPath  %s\n\nBinary file - no preview.", size, when,
+        lv_obj_set_style_text_font(s_view_body, &pt_montserrat_16, 0);
+        lv_label_set_text_fmt(s_view_body, "Tamanho  %s\nAlterado  %s\nCaminho  %s\n\nArquivo binário - sem prévia.", size, when,
                               path.c_str());
     }
     if (buf) {
@@ -301,20 +302,20 @@ static void add_row(size_t idx) {
     lv_color_t color;
     const char *sym = icon_for(e, &color);
     lv_obj_t *icon = lv_label_create(row);
-    lv_obj_set_style_text_font(icon, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(icon, &pt_montserrat_20, 0);
     lv_obj_set_style_text_color(icon, color, 0);
     lv_obj_set_width(icon, 24);
     lv_label_set_text(icon, sym);
 
     lv_obj_t *name = lv_label_create(row);
-    lv_obj_set_style_text_font(name, has_non_ascii(e.name.c_str()) ? ui_font_get() : &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(name, has_non_ascii(e.name.c_str()) ? ui_font_get() : &pt_montserrat_16, 0);
     lv_obj_set_style_text_color(name, ui_color_text(), 0);
     lv_obj_set_flex_grow(name, 1);
     lv_label_set_long_mode(name, LV_LABEL_LONG_DOT);
     lv_label_set_text(name, e.name.c_str());
 
     lv_obj_t *meta = lv_label_create(row);
-    lv_obj_set_style_text_font(meta, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_font(meta, &pt_montserrat_14, 0);
     lv_obj_set_style_text_color(meta, ui_color_text_muted(), 0);
     if (e.dir) {
         lv_label_set_text(meta, LV_SYMBOL_RIGHT);
@@ -328,13 +329,13 @@ static void add_row(size_t idx) {
 static void update_footer(void) {
     uint64_t total_b = 0, used_b = 0;
     if (!sd_card_mounted() || !sd_card_usage(&total_b, &used_b)) {
-        lv_label_set_text(s_footer, "No SD card");
+        lv_label_set_text(s_footer, "Sem cartão SD");
         return;
     }
     char used[16], total[16];
     fmt_size(used, sizeof(used), used_b);
     fmt_size(total, sizeof(total), total_b);
-    lv_label_set_text_fmt(s_footer, "%s card  -  %s used of %s  -  %u item(s) here", sd_card_type(), used, total,
+    lv_label_set_text_fmt(s_footer, "Cartão %s  -  %s usados de %s  -  %u item(ns) aqui", sd_card_type(), used, total,
                           (unsigned)s_entries.size());
 }
 
@@ -378,21 +379,21 @@ static void show_dir(const std::string &path) {
     }
     if (s_entries.empty()) {
         lv_obj_t *empty = lv_label_create(s_list);
-        lv_obj_set_style_text_font(empty, &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(empty, &pt_montserrat_16, 0);
         lv_obj_set_style_text_color(empty, ui_color_text_muted(), 0);
         lv_obj_set_style_pad_all(empty, 16, 0);
-        lv_label_set_text(empty, sd_card_mounted() ? "Empty folder" : "No SD card");
+        lv_label_set_text(empty, sd_card_mounted() ? "Pasta vazia" : "Sem cartão SD");
     }
     if (skipped) {
         lv_obj_t *more = lv_label_create(s_list);
-        lv_obj_set_style_text_font(more, &lv_font_montserrat_14, 0);
+        lv_obj_set_style_text_font(more, &pt_montserrat_14, 0);
         lv_obj_set_style_text_color(more, ui_color_text_muted(), 0);
         lv_obj_set_style_pad_all(more, 10, 0);
-        lv_label_set_text_fmt(more, "... and %u more not shown", (unsigned)skipped);
+        lv_label_set_text_fmt(more, "... e mais %u não mostrados", (unsigned)skipped);
     }
     lv_obj_scroll_to_y(s_list, 0, LV_ANIM_OFF);
 
-    lv_obj_set_style_text_font(s_path_lbl, has_non_ascii(s_cwd.c_str()) ? ui_font_get() : &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_font(s_path_lbl, has_non_ascii(s_cwd.c_str()) ? ui_font_get() : &pt_montserrat_14, 0);
     lv_label_set_text_fmt(s_path_lbl, LV_SYMBOL_DIRECTORY "  %s", s_cwd.c_str());
     if (s_cwd == "/") {
         lv_obj_add_state(s_up_btn, LV_STATE_DISABLED);
@@ -416,7 +417,7 @@ static void build_screen(void) {
     lv_obj_set_flex_flow(s_scr, LV_FLEX_FLOW_COLUMN);
     lv_obj_clear_flag(s_scr, LV_OBJ_FLAG_SCROLLABLE);
 
-    s_bar = status_bar_create(s_scr, "Files", true);
+    s_bar = status_bar_create(s_scr, "Arquivos", true);
     s_up_btn = status_bar_add_action(s_bar, LV_SYMBOL_UP, up_cb, nullptr);
 
     s_path_lbl = lv_label_create(s_scr);
@@ -435,7 +436,7 @@ static void build_screen(void) {
     s_footer = lv_label_create(s_scr);
     lv_obj_set_width(s_footer, LV_PCT(100));
     lv_label_set_long_mode(s_footer, LV_LABEL_LONG_DOT);
-    lv_obj_set_style_text_font(s_footer, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(s_footer, &pt_montserrat_12, 0);
     lv_obj_set_style_text_color(s_footer, ui_color_text_muted(), 0);
 }
 

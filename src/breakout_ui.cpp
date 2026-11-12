@@ -1,4 +1,5 @@
 #include "breakout_ui.h"
+#include "fontes_pt.h"
 
 #include <esp_random.h>
 #include <lvgl.h>
@@ -101,7 +102,7 @@ static void auto_wait(uint32_t ms) {
 static void show_msg(const char *text);
 static void show_ready_msg(const char *headline) {
     char buf[96];
-    snprintf(buf, sizeof(buf), s_auto ? "%s" : "%s\nTap to launch", headline);
+    snprintf(buf, sizeof(buf), s_auto ? "%s" : "%s\nToque para lançar", headline);
     show_msg(buf);
     auto_wait(k_ai_launch_delay_ms);
 }
@@ -136,7 +137,7 @@ static void update_hud(void) {
     /* Title space is ~180 px between the Home button and the clock: keep it short.
      * Level and best score are shown in the field messages instead. */
     char buf[40];
-    snprintf(buf, sizeof(buf), "%d pts   %d lives", s_score, s_lives);
+    snprintf(buf, sizeof(buf), "%d pts   %d vidas", s_score, s_lives);
     status_bar_set_title(s_bar, buf);
 }
 
@@ -195,7 +196,7 @@ static void new_game(void) {
     s_auto_used = s_auto;
     update_hud();
     char buf[64];
-    snprintf(buf, sizeof(buf), s_auto ? "Auto play\nBest: %d" : "Drag to move\nBest: %d", s_best);
+    snprintf(buf, sizeof(buf), s_auto ? "Jogo automático\nRecorde: %d" : "Arraste para mover\nRecorde: %d", s_best);
     show_ready_msg(buf);
 }
 
@@ -215,21 +216,21 @@ static void lose_life(void) {
     if (s_lives > 0) {
         s_state = State::Ready;
         attach_ball();
-        show_ready_msg("Missed!");
+        show_ready_msg("Errou!");
         return;
     }
     s_state = State::GameOver;
     auto_wait(k_ai_restart_delay_ms);
     char buf[80];
     if (s_auto_used) {
-        snprintf(buf, sizeof(buf), "Game over - score %d\n(auto play, not counted)", s_score);
+        snprintf(buf, sizeof(buf), "Fim de jogo - %d pontos\n(automático, não conta)", s_score);
     } else if (s_score > s_best) {
         s_best = s_score;
         save_best();
         update_hud();
-        snprintf(buf, sizeof(buf), "New best: %d!\nTap to play again", s_score);
+        snprintf(buf, sizeof(buf), "Novo recorde: %d!\nToque para jogar de novo", s_score);
     } else {
-        snprintf(buf, sizeof(buf), "Game over - score %d\nTap to play again", s_score);
+        snprintf(buf, sizeof(buf), "Fim de jogo - %d pontos\nToque para jogar de novo", s_score);
     }
     show_msg(buf);
     serial_log("[breakout] game over, score %d (best %d)", s_score, s_best);
@@ -242,7 +243,7 @@ static void level_clear(void) {
     s_state = State::Ready;
     update_hud();
     char buf[48];
-    snprintf(buf, sizeof(buf), "Level %d", s_level);
+    snprintf(buf, sizeof(buf), "Fase %d", s_level);
     show_ready_msg(buf);
 }
 
@@ -521,7 +522,7 @@ static void game_timer_cb(lv_timer_t *t) {
     if (lv_scr_act() != s_scr) {
         if (s_state == State::Playing) {
             s_state = State::Paused;
-            show_msg("Paused - tap to resume");
+            show_msg("Pausado - toque para continuar");
         }
         lv_timer_pause(s_game_timer); /* no 16 ms wakeups while another app is open */
         return;
@@ -619,7 +620,7 @@ static void build_screen(void) {
     /* "Auto" toggle: checkable, turns green while auto play is on. */
     s_auto_btn = status_bar_add_action(s_bar, "Auto", auto_cb, nullptr);
     lv_obj_set_width(s_auto_btn, 60);
-    lv_obj_set_style_text_font(lv_obj_get_child(s_auto_btn, 0), &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(lv_obj_get_child(s_auto_btn, 0), &pt_montserrat_16, 0);
     lv_obj_add_flag(s_auto_btn, LV_OBJ_FLAG_CHECKABLE);
     lv_obj_set_style_bg_color(s_auto_btn, lv_palette_main(LV_PALETTE_GREEN), LV_STATE_CHECKED);
     (void)status_bar_add_action(s_bar, LV_SYMBOL_REFRESH, restart_cb, nullptr);
@@ -660,7 +661,7 @@ static void build_screen(void) {
                         LV_RADIUS_CIRCLE);
 
     s_msg = lv_label_create(s_field);
-    lv_obj_set_style_text_font(s_msg, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(s_msg, &pt_montserrat_20, 0);
     lv_obj_set_style_text_color(s_msg, ui_color_text(), 0);
     lv_obj_set_style_text_align(s_msg, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_bg_color(s_msg, ui_color_surface(), 0);

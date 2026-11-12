@@ -1,4 +1,5 @@
 #include "radio_ui.h"
+#include "fontes_pt.h"
 
 #include <esp_http_client.h>
 #include <freertos/FreeRTOS.h>
@@ -154,7 +155,7 @@ static std::vector<Station> read_station_file(const char *path) {
         Station s;
         s.url = line.substr(0, sp);
         s.name = sp == std::string::npos ? s.url : trim(line.substr(sp));
-        s.info = "Saved";
+        s.info = "Salva";
         out.push_back(s);
     });
     return out;
@@ -282,7 +283,7 @@ static DirResult *dir_fetch(int tab, uint32_t id) {
     r->tab = tab;
     r->id = id;
     if (!wifi_net_connected()) {
-        r->note = "Connect to Wi-Fi to browse stations";
+        r->note = "Conecte o Wi-Fi para ver as rádios";
         return r;
     }
     std::string body;
@@ -295,14 +296,14 @@ static DirResult *dir_fetch(int tab, uint32_t id) {
             }
         }
         if (s_country.empty()) {
-            r->note = "Couldn't tell which country you are in";
+            r->note = "Não deu para saber o seu país";
             return r;
         }
         query += "&countrycode=" + url_encode(s_country);
     }
     const uint32_t t0 = now_ms();
     if (dir_get(query, &body) != 200) {
-        r->note = "Couldn't reach the station directory";
+        r->note = "Não consegui acessar a lista de rádios";
         return r;
     }
     JsonDocument filter;
@@ -316,7 +317,7 @@ static DirResult *dir_fetch(int tab, uint32_t id) {
     const DeserializationError err = deserializeJson(doc, body, DeserializationOption::Filter(filter));
     if (err) {
         serial_log("[radio] directory JSON error %s (%u bytes)", err.c_str(), (unsigned)body.size());
-        r->note = "Bad answer from the station directory";
+        r->note = "Resposta inválida da lista de rádios";
         return r;
     }
     for (JsonVariantConst v : doc.as<JsonArrayConst>()) {
@@ -331,7 +332,7 @@ static DirResult *dir_fetch(int tab, uint32_t id) {
         }
     }
     if (r->list.empty()) {
-        r->note = "No stations found";
+        r->note = "Nenhuma rádio encontrada";
     }
     serial_log("[radio] %s: %u station(s) in %lu ms", tab == k_local ? s_country.c_str() : "top",
                (unsigned)r->list.size(), (unsigned long)(now_ms() - t0));
@@ -444,12 +445,12 @@ static void add_row(size_t idx, const Station &s) {
 
     lv_obj_t *name = lv_label_create(row);
     lv_obj_set_width(name, LV_PCT(100));
-    one_line(name, font_for(s.name.c_str(), &lv_font_montserrat_16));
+    one_line(name, font_for(s.name.c_str(), &pt_montserrat_16));
     lv_label_set_text(name, s.name.c_str());
 
     lv_obj_t *info = lv_label_create(row);
     lv_obj_set_width(info, LV_PCT(100));
-    one_line(info, font_for(s.info.c_str(), &lv_font_montserrat_12));
+    one_line(info, font_for(s.info.c_str(), &pt_montserrat_12));
     lv_obj_set_style_text_color(info, ui_color_text_muted(), 0);
     lv_label_set_text(info, s.info.c_str());
 
@@ -460,7 +461,7 @@ static void list_note(const char *text) {
     lv_obj_t *lbl = lv_label_create(s_list);
     lv_obj_set_width(lbl, LV_PCT(100));
     lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(lbl, &pt_montserrat_16, 0);
     lv_obj_set_style_text_color(lbl, ui_color_text_muted(), 0);
     lv_obj_set_style_pad_all(lbl, 16, 0);
     lv_label_set_text(lbl, text);
@@ -476,7 +477,7 @@ static void show_tab(int tab) {
         s_lists[k_saved] = read_station_file(k_saved_path);
         s_loaded[k_saved] = true;
     } else if (!s_loaded[tab]) {
-        list_note("Loading stations...");
+        list_note("Carregando rádios...");
         dir_request(tab);
         return;
     }
@@ -574,20 +575,20 @@ static void refresh(void) {
     audio_get_status(&st);
     const bool mine = st.stream && st.path == s_cur.url; /* the player is on the card's station */
 
-    set_two_lines(s_name, &s_shown_name, s_cur.url.empty() ? "No station" : s_cur.name.c_str(), &lv_font_montserrat_20);
+    set_two_lines(s_name, &s_shown_name, s_cur.url.empty() ? "Nenhuma rádio" : s_cur.name.c_str(), &pt_montserrat_20);
     set_cached(s_info, &s_shown_info, s_cur.info.c_str());
     set_two_lines(s_song, &s_shown_song, mine && !st.now_playing.empty() ? st.now_playing.c_str() : "",
-                  &lv_font_montserrat_14);
+                  &pt_montserrat_14);
 
     const char *note = "";
     if (s_cur.url.empty()) {
-        note = "Pick a station";
+        note = "Escolha uma rádio";
     } else if (!mine || st.state != AudioState::Playing) {
-        note = mine && st.error ? st.stream_note.c_str() : "Stopped";
+        note = mine && st.error ? st.stream_note.c_str() : "Parada";
     } else if (!st.stream_note.empty()) {
         note = st.stream_note.c_str();
     } else {
-        note = "Live";
+        note = "Ao vivo";
     }
     set_cached(s_note, &s_shown_note, note);
     set_cached(s_play_lbl, &s_shown_play, mine && st.state == AudioState::Playing ? LV_SYMBOL_STOP : LV_SYMBOL_PLAY);
@@ -651,7 +652,7 @@ static lv_obj_t *add_ctrl_btn(lv_obj_t *parent, const char *symbol, lv_coord_t s
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_add_event_cb(btn, cb, LV_EVENT_CLICKED, user);
     lv_obj_t *lbl = lv_label_create(btn);
-    lv_obj_set_style_text_font(lbl, size >= 52 ? &lv_font_montserrat_24 : &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(lbl, size >= 52 ? &pt_montserrat_24 : &pt_montserrat_20, 0);
     lv_label_set_text(lbl, symbol);
     lv_obj_center(lbl);
     return btn;
@@ -678,7 +679,7 @@ static void build_screen(void) {
     lv_obj_set_flex_flow(s_scr, LV_FLEX_FLOW_COLUMN);
     lv_obj_clear_flag(s_scr, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t *bar = status_bar_create(s_scr, "Radio", true);
+    lv_obj_t *bar = status_bar_create(s_scr, "Rádio", true);
     (void)status_bar_add_action(bar, LV_SYMBOL_REFRESH, refresh_cb, nullptr);
 
     lv_obj_t *body = add_plain_row(s_scr);
@@ -702,11 +703,11 @@ static void build_screen(void) {
     lv_obj_set_style_pad_row(text, 3, 0);
     lv_obj_clear_flag(text, LV_OBJ_FLAG_SCROLLABLE);
 
-    s_name = add_label(text, &lv_font_montserrat_20, ui_color_text());
-    s_info = add_label(text, &lv_font_montserrat_12, ui_color_text_muted());
-    s_song = add_label(text, &lv_font_montserrat_14, lv_palette_main(LV_PALETTE_INDIGO));
+    s_name = add_label(text, &pt_montserrat_20, ui_color_text());
+    s_info = add_label(text, &pt_montserrat_12, ui_color_text_muted());
+    s_song = add_label(text, &pt_montserrat_14, lv_palette_main(LV_PALETTE_INDIGO));
     lv_obj_set_style_pad_top(s_song, 6, 0);
-    s_note = add_label(text, &lv_font_montserrat_12, ui_color_text_muted());
+    s_note = add_label(text, &pt_montserrat_12, ui_color_text_muted());
 
     lv_obj_t *ctrl_row = add_plain_row(card);
     lv_obj_set_flex_align(ctrl_row, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
@@ -730,7 +731,7 @@ static void build_screen(void) {
     lv_obj_set_style_pad_row(right, 6, 0);
     lv_obj_clear_flag(right, LV_OBJ_FLAG_SCROLLABLE);
 
-    static const char *k_tab_map[] = {"Saved", "Local", "Top", ""};
+    static const char *k_tab_map[] = {"Salvas", "Locais", "Top", ""};
     s_tab_bm = lv_btnmatrix_create(right);
     lv_btnmatrix_set_map(s_tab_bm, k_tab_map);
     lv_btnmatrix_set_btn_ctrl_all(s_tab_bm, LV_BTNMATRIX_CTRL_CHECKABLE);

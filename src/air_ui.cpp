@@ -1,4 +1,5 @@
 #include "air_ui.h"
+#include "fontes_pt.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -111,15 +112,15 @@ static void rebuild_found_list(void) {
         lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
         lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
         lv_obj_set_style_pad_column(row, 10, 0);
-        lv_obj_t *icon = label(row, &lv_font_montserrat_20, lv_palette_main(LV_PALETTE_BLUE), LV_SYMBOL_BLUETOOTH);
+        lv_obj_t *icon = label(row, &pt_montserrat_20, lv_palette_main(LV_PALETTE_BLUE), LV_SYMBOL_BLUETOOTH);
         LV_UNUSED(icon);
-        lv_obj_t *name = label(row, &lv_font_montserrat_16, ui_color_text(), "");
+        lv_obj_t *name = label(row, &pt_montserrat_16, ui_color_text(), "");
         lv_label_set_text_fmt(name, "%s   SN %lu   %d dBm", airthings_model_name(f.serial),
                               (unsigned long)f.serial, f.rssi);
         lv_obj_set_flex_grow(name, 1);
         lv_obj_t *use = lv_btn_create(row);
         lv_obj_set_height(use, 36);
-        lv_obj_t *ul = label(use, &lv_font_montserrat_16, lv_color_white(),
+        lv_obj_t *ul = label(use, &pt_montserrat_16, lv_color_white(),
                              f.serial == airthings_serial() ? "In use" : "Use");
         lv_obj_center(ul);
         lv_obj_add_event_cb(use, use_cb, LV_EVENT_CLICKED, (void *)(uintptr_t)i);
@@ -245,13 +246,13 @@ static void build_screen(void) {
     lv_obj_set_size(left, 170, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(left, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_row(left, 2, 0);
-    s_radon = label(left, &lv_font_montserrat_48, ui_color_text_muted(), "--");
-    s_radon_unit = label(left, &lv_font_montserrat_14, ui_color_text_muted(), "");
-    s_level = label(left, &lv_font_montserrat_16, ui_color_text_muted(), "");
+    s_radon = label(left, &pt_montserrat_48, ui_color_text_muted(), "--");
+    s_radon_unit = label(left, &pt_montserrat_14, ui_color_text_muted(), "");
+    s_level = label(left, &pt_montserrat_16, ui_color_text_muted(), "");
     lv_obj_set_width(s_level, LV_PCT(100));
     lv_label_set_long_mode(s_level, LV_LABEL_LONG_WRAP);
 
-    s_details = label(s_reading, &lv_font_montserrat_16, ui_color_text(), "");
+    s_details = label(s_reading, &pt_montserrat_16, ui_color_text(), "");
     lv_obj_set_flex_grow(s_details, 1);
     lv_obj_set_style_text_line_space(s_details, 8, 0);
 
@@ -265,11 +266,11 @@ static void build_screen(void) {
     lv_obj_set_size(head, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(head, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(head, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    s_find_hint = label(head, &lv_font_montserrat_14, ui_color_text_muted(), "");
+    s_find_hint = label(head, &pt_montserrat_14, ui_color_text_muted(), "");
     lv_obj_set_flex_grow(s_find_hint, 1);
     s_find_btn = lv_btn_create(head);
     lv_obj_set_height(s_find_btn, 40);
-    lv_obj_t *fl = label(s_find_btn, &lv_font_montserrat_16, lv_color_white(), LV_SYMBOL_BLUETOOTH "  Find sensor");
+    lv_obj_t *fl = label(s_find_btn, &pt_montserrat_16, lv_color_white(), LV_SYMBOL_BLUETOOTH "  Find sensor");
     lv_obj_center(fl);
     lv_obj_add_event_cb(s_find_btn, find_cb, LV_EVENT_CLICKED, nullptr);
     s_find_list = lv_obj_create(s_find);
@@ -277,7 +278,7 @@ static void build_screen(void) {
     lv_obj_set_size(s_find_list, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(s_find_list, LV_FLEX_FLOW_COLUMN);
 
-    s_footer = label(s_scr, &lv_font_montserrat_12, ui_color_text_muted(), "");
+    s_footer = label(s_scr, &pt_montserrat_12, ui_color_text_muted(), "");
     lv_obj_set_width(s_footer, LV_PCT(100));
     lv_label_set_long_mode(s_footer, LV_LABEL_LONG_DOT);
 

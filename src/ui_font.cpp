@@ -1,4 +1,5 @@
 #include "ui_font.h"
+#include "fontes_pt.h"
 
 #include <dirent.h>
 #include <esp_heap_caps.h>
@@ -244,7 +245,7 @@ bool ui_font_load_from_sd(void) {
         serial_log("[ui_font] font: LOAD FAILED (parse/OOM) — SimSun fallback");
         return false;
     }
-    s_loaded_font->fallback = &lv_font_montserrat_14;
+    s_loaded_font->fallback = &pt_montserrat_16; /* acentos (o UI_FONT_16 é só ASCII + CJK) */
     serial_log("[ui_font] font: LOAD OK (line_height=%d)", (int)s_loaded_font->line_height);
     return true;
 }

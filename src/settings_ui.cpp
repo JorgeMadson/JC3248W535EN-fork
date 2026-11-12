@@ -1,4 +1,5 @@
 #include "app_settings.h"
+#include "fontes_pt.h"
 #include "platform_time.h"
 
 #include <stdint.h>
@@ -27,17 +28,17 @@ struct TzOption {
 /* POSIX strings must stay stable: the saved /timezone.ini value is matched against them. */
 static const TzOption k_timezones[] = {
     {"UTC", "UTC0"},
-    {"Brasilia (UTC-3)", "<-03>3"},
-    {"US Eastern", "EST5EDT,M3.2.0,M11.1.0"},
-    {"US Central", "CST6CDT,M3.2.0,M11.1.0"},
-    {"US Mountain", "MST7MDT,M3.2.0,M11.1.0"},
-    {"US Pacific", "PST8PDT,M3.2.0,M11.1.0"},
-    {"United Kingdom", "GMT0BST,M3.5.0/1,M10.5.0/2"},
-    {"Central Europe", "CET-1CEST,M3.5.0/2,M10.5.0/3"},
-    {"India (UTC+5:30)", "IST-5:30"},
+    {"Brasília (UTC-3)", "<-03>3"},
+    {"EUA Leste", "EST5EDT,M3.2.0,M11.1.0"},
+    {"EUA Central", "CST6CDT,M3.2.0,M11.1.0"},
+    {"EUA Montanha", "MST7MDT,M3.2.0,M11.1.0"},
+    {"EUA Pacífico", "PST8PDT,M3.2.0,M11.1.0"},
+    {"Reino Unido", "GMT0BST,M3.5.0/1,M10.5.0/2"},
+    {"Europa Central", "CET-1CEST,M3.5.0/2,M10.5.0/3"},
+    {"Índia (UTC+5:30)", "IST-5:30"},
     {"China (UTC+8)", "CST-8"},
-    {"Japan (UTC+9)", "JST-9"},
-    {"Korea (UTC+9)", "KST-9"},
+    {"Japão (UTC+9)", "JST-9"},
+    {"Coreia (UTC+9)", "KST-9"},
     {"Australia Sydney", "AEST-10AEDT,M10.1.0,M4.1.0/3"},
 };
 static const int k_tz_n = sizeof(k_timezones) / sizeof(k_timezones[0]);
@@ -171,9 +172,9 @@ static void sync_from_state(void) {
         about += std::string(ssid) + "  (" + ip + ", " + std::to_string(wifi_net_rssi()) + " dBm)";
         about += "\nWeb page  http://" + std::string(ip) + "/";
     } else {
-        about += "not connected";
+        about += "não conectado";
     }
-    about += "\nUptime  " + std::to_string(now_ms() / 60000UL) + " min";
+    about += "\nLigado há  " + std::to_string(now_ms() / 60000UL) + " min";
     about += "\nFirmware  " + std::string(ota_version()) + "  (" + ota_slot() + ")";
     lv_label_set_text(s_about, about.c_str());
 }
@@ -205,7 +206,7 @@ static void update_system_card(void) {
     snprintf(buf, sizeof(buf), "%lu / %lu KB", (unsigned long)(ps_used / 1024), (unsigned long)(st.psram_total / 1024));
     set_meter(s_psram, st.psram_total ? 100.0f * ps_used / st.psram_total : 0, buf);
 
-    lv_label_set_text_fmt(s_top_tasks, "Busiest: %s\nRAM low point %lu KB free, largest block %lu KB", st.top,
+    lv_label_set_text_fmt(s_top_tasks, "Mais ocupada: %s\nRAM mínima %lu KB livres, maior bloco %lu KB", st.top,
                           (unsigned long)(st.heap_min / 1024), (unsigned long)(st.heap_largest / 1024));
 }
 
@@ -226,7 +227,7 @@ static Meter add_meter(lv_obj_t *card, const char *name) {
     lv_obj_set_style_pad_column(row, 10, 0);
 
     lv_obj_t *l = lv_label_create(row);
-    lv_obj_set_style_text_font(l, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_font(l, &pt_montserrat_14, 0);
     lv_obj_set_style_text_color(l, ui_color_text(), 0);
     lv_obj_set_width(l, 64);
     lv_label_set_text(l, name);
@@ -239,7 +240,7 @@ static Meter add_meter(lv_obj_t *card, const char *name) {
     lv_obj_set_style_bg_color(m.bar, ui_color_track(), LV_PART_MAIN);
 
     m.value = lv_label_create(row);
-    lv_obj_set_style_text_font(m.value, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_font(m.value, &pt_montserrat_14, 0);
     lv_obj_set_style_text_color(m.value, ui_color_text_muted(), 0);
     lv_obj_set_width(m.value, 110);
     lv_obj_set_style_text_align(m.value, LV_TEXT_ALIGN_RIGHT, 0);
@@ -261,7 +262,7 @@ static void build_screen(void) {
     lv_obj_set_flex_flow(s_scr, LV_FLEX_FLOW_COLUMN);
     lv_obj_clear_flag(s_scr, LV_OBJ_FLAG_SCROLLABLE);
 
-    (void)status_bar_create(s_scr, "Settings", true);
+    (void)status_bar_create(s_scr, "Ajustes", true);
 
     /* Scrollable list of setting cards */
     lv_obj_t *list = lv_obj_create(s_scr);
@@ -273,7 +274,7 @@ static void build_screen(void) {
     lv_obj_set_scroll_dir(list, LV_DIR_VER);
 
     /* Brightness */
-    lv_obj_t *row = add_row(list, "Brightness");
+    lv_obj_t *row = add_row(list, "Brilho");
     s_slider = lv_slider_create(row);
     lv_slider_set_range(s_slider, 10, 100);
     lv_obj_set_flex_grow(s_slider, 1);
@@ -281,13 +282,13 @@ static void build_screen(void) {
     lv_obj_add_event_cb(s_slider, brightness_cb, LV_EVENT_VALUE_CHANGED, nullptr);
     lv_obj_add_event_cb(s_slider, brightness_cb, LV_EVENT_RELEASED, nullptr);
     s_slider_val = lv_label_create(row);
-    lv_obj_set_style_text_font(s_slider_val, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_slider_val, &pt_montserrat_16, 0);
     lv_obj_set_style_text_color(s_slider_val, ui_color_text_muted(), 0);
     lv_obj_set_width(s_slider_val, 44);
     lv_obj_set_style_text_align(s_slider_val, LV_TEXT_ALIGN_RIGHT, 0);
 
     /* Timezone */
-    row = add_row(list, "Timezone");
+    row = add_row(list, "Fuso horário");
     std::string opts;
     for (int i = 0; i < k_tz_n; i++) {
         if (i) {
@@ -298,23 +299,23 @@ static void build_screen(void) {
     s_tz_dd = lv_dropdown_create(row);
     lv_dropdown_set_options(s_tz_dd, opts.c_str());
     lv_obj_set_flex_grow(s_tz_dd, 1);
-    lv_obj_set_style_text_font(s_tz_dd, &lv_font_montserrat_16, 0);
-    lv_obj_set_style_text_font(lv_dropdown_get_list(s_tz_dd), &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_tz_dd, &pt_montserrat_16, 0);
+    lv_obj_set_style_text_font(lv_dropdown_get_list(s_tz_dd), &pt_montserrat_16, 0);
     lv_obj_add_event_cb(s_tz_dd, tz_cb, LV_EVENT_VALUE_CHANGED, nullptr);
 
     /* Temperature units */
-    row = add_row(list, "Temperature");
+    row = add_row(list, "Temperatura");
     static const char *k_units_map[] = {"Auto", "\xC2\xB0" "C", "\xC2\xB0" "F", ""};
     s_units_bm = add_segmented(row, k_units_map, (uint16_t)s.units, units_cb);
 
     /* Time format */
-    row = add_row(list, "Time format");
-    static const char *k_clock_map[] = {"24-hour", "12-hour", ""};
+    row = add_row(list, "Formato da hora");
+    static const char *k_clock_map[] = {"24 horas", "12 horas", ""};
     s_clock_bm = add_segmented(row, k_clock_map, s.clock_24h ? 0 : 1, clock_fmt_cb);
 
     /* Ambient screen (animated weather clock) after idle minutes on Home */
-    row = add_row(list, "Ambient screen");
-    static const char *k_ambient_map[] = {"Off", "1 min", "3 min", "5 min", "10 min", ""};
+    row = add_row(list, "Painel automático");
+    static const char *k_ambient_map[] = {"Desligado", "1 min", "3 min", "5 min", "10 min", ""};
     const int am = s.ambient_min;
     s_ambient_bm = add_segmented(row, k_ambient_map, am == 0 ? 0 : am == 1 ? 1 : am == 3 ? 2 : am == 5 ? 3 : 4, ambient_cb);
 
@@ -329,17 +330,17 @@ static void build_screen(void) {
     lv_obj_t *sys_title = lv_label_create(sys);
     lv_obj_set_style_text_font(sys_title, ui_font_get(), 0);
     lv_obj_set_style_text_color(sys_title, ui_color_text(), 0);
-    lv_label_set_text(sys_title, "System");
-    s_cpu0 = add_meter(sys, "Core 0");
-    s_cpu1 = add_meter(sys, "Core 1");
+    lv_label_set_text(sys_title, "Sistema");
+    s_cpu0 = add_meter(sys, "Núcleo 0");
+    s_cpu1 = add_meter(sys, "Núcleo 1");
     s_ram = add_meter(sys, "RAM");
     s_psram = add_meter(sys, "PSRAM");
     s_top_tasks = lv_label_create(sys);
     lv_obj_set_width(s_top_tasks, LV_PCT(100));
     lv_label_set_long_mode(s_top_tasks, LV_LABEL_LONG_WRAP);
-    lv_obj_set_style_text_font(s_top_tasks, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(s_top_tasks, &pt_montserrat_12, 0);
     lv_obj_set_style_text_color(s_top_tasks, ui_color_text_muted(), 0);
-    lv_label_set_text(s_top_tasks, "Measuring...");
+    lv_label_set_text(s_top_tasks, "Medindo...");
     s_sys_timer = lv_timer_create(system_timer_cb, 1000, nullptr);
 
     /* About */

@@ -43,7 +43,7 @@ static WeatherConfig s_cfg = {false, 0, 0, "", -1, false};
 static SemaphoreHandle_t s_cfg_lock = nullptr;
 static volatile bool s_reload = false; /* weather_set_location(): re-read /weather.ini */
 static TaskHandle_t s_task = nullptr;
-static volatile const char *s_status = "Waiting for WiFi";
+static volatile const char *s_status = "Aguardando o Wi-Fi";
 
 static void cfg_lock(void) {
     if (s_cfg_lock) {
@@ -146,27 +146,27 @@ static bool http_get_json(const char *url, JsonDocument &doc) {
     cfg.buffer_size_tx = 1024; /* the forecast URL is ~350 characters */
     esp_http_client_handle_t client = esp_http_client_init(&cfg);
     if (!client) {
-        set_status("HTTP init failed");
+        set_status("Falha ao iniciar o HTTP");
         return false;
     }
     bool ok = false;
     const esp_err_t err = esp_http_client_open(client, 0);
     if (err != ESP_OK) {
         serial_log("[weather] GET %s -> %s", url, esp_err_to_name(err));
-        set_status("Network error");
+        set_status("Erro de rede");
     } else {
         (void)esp_http_client_fetch_headers(client);
         const int code = esp_http_client_get_status_code(client);
         if (code != 200) {
             serial_log("[weather] GET %s -> HTTP %d", url, code);
-            set_status("Server error");
+            set_status("Erro no servidor");
         } else {
             HttpBodyReader reader;
             reader.client = client;
             const DeserializationError jerr = deserializeJson(doc, reader);
             if (jerr) {
                 serial_log("[weather] JSON error: %s", jerr.c_str());
-                set_status("Bad weather data");
+                set_status("Dados do clima inválidos");
             } else {
                 ok = true;
             }
@@ -184,7 +184,7 @@ static bool geolocate(void) {
         return false;
     }
     if (strcmp(doc["status"] | "", "success") != 0) {
-        set_status("Location lookup failed");
+        set_status("Não achei a localização");
         return false;
     }
     cfg_lock();
@@ -224,13 +224,13 @@ static bool fetch_forecast(WeatherData *wd) {
     JsonObject cur = doc["current"];
     JsonObject daily = doc["daily"];
     if (cur.isNull() || daily.isNull()) {
-        set_status("Bad weather data");
+        set_status("Dados do clima inválidos");
         return false;
     }
 
     memset(wd, 0, sizeof(*wd));
     wd->fahrenheit = fahrenheit;
-    strlcpy(wd->location, s_cfg.name.length() ? s_cfg.name.c_str() : "Weather", sizeof(wd->location));
+    strlcpy(wd->location, s_cfg.name.length() ? s_cfg.name.c_str() : "Clima", sizeof(wd->location));
     wd->temp = cur["temperature_2m"] | 0.0f;
     wd->feels_like = cur["apparent_temperature"] | 0.0f;
     wd->humidity = cur["relative_humidity_2m"] | 0;
@@ -284,15 +284,15 @@ static void weather_task(void *arg) {
             load_ini();
         }
         if (!wifi_net_connected()) {
-            if (strcmp((const char *)s_status, "Waiting for WiFi") != 0) {
-                set_status("Waiting for WiFi");
+            if (strcmp((const char *)s_status, "Aguardando o Wi-Fi") != 0) {
+                set_status("Aguardando o Wi-Fi");
             }
             /* Wake early on a refresh request; otherwise re-check WiFi every 2 s. */
             ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(2000));
             continue;
         }
 
-        set_status("Updating...");
+        set_status("Atualizando...");
         bool ok = s_cfg.have_coords || geolocate();
         if (ok) {
             if (s_cfg.units < 0) {
@@ -370,34 +370,34 @@ bool weather_set_location(const WeatherLocation *loc) {
 
 const char *weather_code_text(int code) {
     switch (code) {
-    case 0: return "Clear";
-    case 1: return "Mainly clear";
-    case 2: return "Partly cloudy";
-    case 3: return "Overcast";
+    case 0: return "Céu limpo";
+    case 1: return "Quase limpo";
+    case 2: return "Parcialmente nublado";
+    case 3: return "Nublado";
     case 45:
-    case 48: return "Fog";
+    case 48: return "Neblina";
     case 51:
     case 53:
-    case 55: return "Drizzle";
+    case 55: return "Garoa";
     case 56:
-    case 57: return "Freezing drizzle";
-    case 61: return "Light rain";
-    case 63: return "Rain";
-    case 65: return "Heavy rain";
+    case 57: return "Garoa congelante";
+    case 61: return "Chuva fraca";
+    case 63: return "Chuva";
+    case 65: return "Chuva forte";
     case 66:
-    case 67: return "Freezing rain";
-    case 71: return "Light snow";
-    case 73: return "Snow";
-    case 75: return "Heavy snow";
-    case 77: return "Snow grains";
+    case 67: return "Chuva congelante";
+    case 71: return "Neve fraca";
+    case 73: return "Neve";
+    case 75: return "Neve forte";
+    case 77: return "Grãos de neve";
     case 80:
-    case 81: return "Showers";
-    case 82: return "Heavy showers";
+    case 81: return "Pancadas de chuva";
+    case 82: return "Pancadas fortes";
     case 85:
-    case 86: return "Snow showers";
-    case 95: return "Thunderstorm";
+    case 86: return "Pancadas de neve";
+    case 95: return "Trovoada";
     case 96:
-    case 99: return "Storm, hail";
-    default: return "Unknown";
+    case 99: return "Tempestade com granizo";
+    default: return "Desconhecido";
     }
 }

@@ -1,4 +1,5 @@
 #include "home_ui.h"
+#include "fontes_pt.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -67,7 +68,7 @@ static void home_timer_cb(lv_timer_t *t) {
 
     const time_t now = time(nullptr);
     if (now < 1700000000) {
-        status_bar_set_title(s_bar, "Home");
+        status_bar_set_title(s_bar, "Início");
         lv_label_set_text(s_clock_tile_time, "--:--");
         return;
     }
@@ -130,7 +131,7 @@ void home_ui_init(void) {
     lv_obj_clear_flag(s_home_scr, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_pad_all(s_home_scr, 8, 0);
-    s_bar = status_bar_create(s_home_scr, "Home", false);
+    s_bar = status_bar_create(s_home_scr, "Início", false);
     lv_obj_align(s_bar, LV_ALIGN_TOP_MID, 0, 0);
 
     /* App grid */
@@ -143,25 +144,25 @@ void home_ui_init(void) {
     lv_obj_set_style_pad_column(apps, k_grid_gap, 0);
     lv_obj_set_style_pad_row(apps, 10, 0);
 
-    (void)add_app_tile(apps, LV_SYMBOL_WIFI, &lv_font_montserrat_30, "WiFi", lv_palette_main(LV_PALETTE_BLUE),
+    (void)add_app_tile(apps, LV_SYMBOL_WIFI, &pt_montserrat_30, "Wi-Fi", lv_palette_main(LV_PALETTE_BLUE),
                        wifi_ui_open);
-    s_clock_tile_time = add_app_tile(apps, "--:--", &lv_font_montserrat_20, "Clock",
+    s_clock_tile_time = add_app_tile(apps, "--:--", &pt_montserrat_20, "Relógio",
                                      lv_palette_darken(LV_PALETTE_DEEP_ORANGE, 1), clock_ui_open);
-    s_weather_tile_temp = add_app_tile(apps, weather_ui_tile_text(), &lv_font_montserrat_22, "Weather",
+    s_weather_tile_temp = add_app_tile(apps, weather_ui_tile_text(), &pt_montserrat_22, "Clima",
                                        lv_palette_main(LV_PALETTE_TEAL), weather_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_DIRECTORY, &lv_font_montserrat_30, "Files", lv_palette_main(LV_PALETTE_AMBER),
+    (void)add_app_tile(apps, LV_SYMBOL_DIRECTORY, &pt_montserrat_30, "Arquivos", lv_palette_main(LV_PALETTE_AMBER),
                        files_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_AUDIO, &lv_font_montserrat_30, "Music", lv_palette_main(LV_PALETTE_PINK),
+    (void)add_app_tile(apps, LV_SYMBOL_AUDIO, &pt_montserrat_30, "Música", lv_palette_main(LV_PALETTE_PINK),
                        music_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_VOLUME_MAX, &lv_font_montserrat_30, "Radio",
+    (void)add_app_tile(apps, LV_SYMBOL_VOLUME_MAX, &pt_montserrat_30, "Rádio",
                        lv_palette_main(LV_PALETTE_INDIGO), radio_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_PLAY, &lv_font_montserrat_28, "Breakout",
+    (void)add_app_tile(apps, LV_SYMBOL_PLAY, &pt_montserrat_28, "Breakout",
                        lv_palette_main(LV_PALETTE_DEEP_PURPLE), breakout_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_LIST, &lv_font_montserrat_30, "Placar", lv_palette_main(LV_PALETTE_RED),
+    (void)add_app_tile(apps, LV_SYMBOL_LIST, &pt_montserrat_30, "Placar", lv_palette_main(LV_PALETTE_RED),
                        placar_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_SETTINGS, &lv_font_montserrat_30, "Settings",
+    (void)add_app_tile(apps, LV_SYMBOL_SETTINGS, &pt_montserrat_30, "Ajustes",
                        lv_palette_main(LV_PALETTE_BLUE_GREY), settings_ui_open);
-    (void)add_app_tile(apps, LV_SYMBOL_IMAGE, &lv_font_montserrat_30, "Ambient",
+    (void)add_app_tile(apps, LV_SYMBOL_IMAGE, &pt_montserrat_30, "Painel",
                        lv_palette_main(LV_PALETTE_LIGHT_BLUE), open_ambient);
 
     (void)lv_timer_create(home_timer_cb, 1000, nullptr);
@@ -201,7 +202,7 @@ lv_obj_t *home_ui_add_home_button(lv_obj_t *parent) {
     lv_obj_set_size(btn, 44, 36);
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_t *lbl = lv_label_create(btn);
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(lbl, &pt_montserrat_20, 0);
     lv_label_set_text(lbl, LV_SYMBOL_HOME);
     lv_obj_center(lbl);
     lv_obj_add_event_cb(btn, home_btn_cb, LV_EVENT_CLICKED, nullptr);

@@ -1,4 +1,5 @@
 #include "weather_ui.h"
+#include "fontes_pt.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -142,7 +143,7 @@ static void set_pop(lv_obj_t *label, int pop) {
 
 /** "Mon".."Sun" for a "YYYY-MM-DD" date string. */
 static const char *weekday_name(const char *date) {
-    static const char *const k_names[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    static const char *const k_names[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
     int y = 0, m = 0, d = 0;
     if (sscanf(date, "%d-%d-%d", &y, &m, &d) != 3) {
         return "--";
@@ -193,7 +194,7 @@ static void update_status_label(void) {
     if (s_data.valid && s_data.updated) {
         struct tm ti;
         localtime_r(&s_data.updated, &ti);
-        lv_label_set_text_fmt(s_status, "Updated %02d:%02d  -  Open-Meteo", ti.tm_hour, ti.tm_min);
+        lv_label_set_text_fmt(s_status, "Atualizado %02d:%02d  -  Open-Meteo", ti.tm_hour, ti.tm_min);
     } else {
         lv_label_set_text(s_status, "Open-Meteo");
     }
@@ -217,7 +218,7 @@ static void update_screen(void) {
     fmt_temp(feels, sizeof(feels), wd.feels_like);
     fmt_temp(hi, sizeof(hi), wd.days[0].t_max);
     fmt_temp(lo, sizeof(lo), wd.days[0].t_min);
-    lv_label_set_text_fmt(s_details, "Feels like  %s\nHigh / Low  %s / %s\nHumidity  %d%%\nWind  %d %s", feels, hi, lo,
+    lv_label_set_text_fmt(s_details, "Sensação  %s\nMáx / Mín  %s / %s\nUmidade  %d%%\nVento  %d %s", feels, hi, lo,
                           wd.humidity, (int)lroundf(wd.wind), wd.fahrenheit ? "mph" : "km/h");
 
     for (int i = 0; i < k_weather_hours; i++) {
@@ -293,13 +294,13 @@ static void make_card(lv_obj_t *strip, lv_coord_t width, FcCard *out) {
     /* Let horizontal drags on a card scroll the strip. */
     lv_obj_add_flag(card, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     out->card = card;
-    out->top = make_label(card, &lv_font_montserrat_14, ui_color_text(), "--");
+    out->top = make_label(card, &pt_montserrat_14, ui_color_text(), "--");
     out->icon = lv_obj_create(card);
     lv_obj_remove_style_all(out->icon);
     lv_obj_set_size(out->icon, k_fc_icon, k_fc_icon);
     lv_obj_clear_flag(out->icon, LV_OBJ_FLAG_SCROLLABLE);
-    out->temp = make_label(card, &lv_font_montserrat_16, ui_color_text(), "--");
-    out->pop = make_label(card, &lv_font_montserrat_12, lv_palette_main(LV_PALETTE_BLUE), "");
+    out->temp = make_label(card, &pt_montserrat_16, ui_color_text(), "--");
+    out->pop = make_label(card, &pt_montserrat_12, lv_palette_main(LV_PALETTE_BLUE), "");
 }
 
 static void build_screen(void) {
@@ -315,7 +316,7 @@ static void build_screen(void) {
     lv_obj_clear_flag(s_scr, LV_OBJ_FLAG_SCROLLABLE);
 
     /* Shared status bar: title is the location; refresh lives in the bar */
-    s_bar = status_bar_create(s_scr, "Weather", true);
+    s_bar = status_bar_create(s_scr, "Clima", true);
     (void)status_bar_add_action(s_bar, LV_SYMBOL_REFRESH, refresh_btn_cb, nullptr);
 
     /* Current conditions: icon | temp + condition | details */
@@ -330,17 +331,17 @@ static void build_screen(void) {
     lv_obj_remove_style_all(mid);
     lv_obj_set_size(mid, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(mid, LV_FLEX_FLOW_COLUMN);
-    s_temp = make_label(mid, &lv_font_montserrat_48, ui_color_text(), "--\xC2\xB0");
+    s_temp = make_label(mid, &pt_montserrat_48, ui_color_text(), "--\xC2\xB0");
     s_cond = make_label(mid, ui_font_get(), ui_color_text_muted(), "");
 
-    s_details = make_label(main, &lv_font_montserrat_14, ui_color_text_muted(), "");
+    s_details = make_label(main, &pt_montserrat_14, ui_color_text_muted(), "");
     lv_obj_set_flex_grow(s_details, 1);
     lv_obj_set_style_text_line_space(s_details, 3, 0);
 
     /* Forecast mode toggle | "Updated hh:mm" */
     lv_obj_t *tabs = make_row(s_scr);
     lv_obj_set_style_pad_column(tabs, 10, 0);
-    static const char *k_mode_map[] = {"Hourly", "Daily", ""};
+    static const char *k_mode_map[] = {"Por hora", "Por dia", ""};
     lv_obj_t *bm = lv_btnmatrix_create(tabs);
     lv_btnmatrix_set_map(bm, k_mode_map);
     lv_btnmatrix_set_btn_ctrl_all(bm, LV_BTNMATRIX_CTRL_CHECKABLE);
@@ -351,7 +352,7 @@ static void build_screen(void) {
     ui_style_segmented(bm);
     lv_obj_add_event_cb(bm, mode_btns_cb, LV_EVENT_VALUE_CHANGED, nullptr);
 
-    s_status = make_label(tabs, &lv_font_montserrat_12, ui_color_text_muted(), "");
+    s_status = make_label(tabs, &pt_montserrat_12, ui_color_text_muted(), "");
     lv_obj_set_flex_grow(s_status, 1);
     lv_obj_set_style_text_align(s_status, LV_TEXT_ALIGN_RIGHT, 0);
     lv_label_set_long_mode(s_status, LV_LABEL_LONG_DOT);

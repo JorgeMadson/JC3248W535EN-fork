@@ -1,4 +1,5 @@
 #include "media_ui.h"
+#include "fontes_pt.h"
 
 #include <lvgl.h> /* before PNGdec: see the #undef below */
 
@@ -320,7 +321,7 @@ static bool decode_png(uint8_t *data, size_t len, char *info, size_t info_n) {
     t.line = (uint16_t *)psram_alloc((size_t)w * 2);
     if (!t.line) {
         s_png->close();
-        snprintf(info, info_n, "Out of memory");
+        snprintf(info, info_n, "Sem memória");
         return false;
     }
     const uint32_t t0 = now_ms();
@@ -394,26 +395,26 @@ static bool decode_bmp(uint8_t *data, size_t len, char *info, size_t info_n) {
 
 static void show_still(const char *path) {
     if (!ensure_decoders()) {
-        ui_message("Out of memory");
+        ui_message("Sem memória");
         return;
     }
-    ui_message("Loading...");
+    ui_message("Carregando...");
     char info[96] = "";
     const int fd = sd_open_read(path);
     if (fd < 0) {
-        ui_message("Cannot open file");
+        ui_message("Não deu para abrir o arquivo");
         return;
     }
     const size_t len = sd_file_size(fd);
     if (len == 0 || len > k_max_still_file) {
         close(fd);
-        ui_message(len ? "File too large (max 12 MB)" : "Empty file");
+        ui_message(len ? "Arquivo grande demais (máx. 12 MB)" : "Arquivo vazio");
         return;
     }
     uint8_t *data = (uint8_t *)psram_alloc(len);
     if (!data) {
         close(fd);
-        ui_message("Out of memory");
+        ui_message("Sem memória");
         return;
     }
     const uint32_t t0 = now_ms();
@@ -423,7 +424,7 @@ static void show_still(const char *path) {
 
     bool ok = false;
     if (got != len) {
-        snprintf(info, sizeof(info), "Read error");
+        snprintf(info, sizeof(info), "Erro de leitura");
     } else if (ends_with_ci(path, ".png")) {
         ok = decode_png(data, len, info, sizeof(info));
     } else if (ends_with_ci(path, ".bmp")) {
@@ -891,7 +892,7 @@ static void ui_progress(int permille, uint32_t elapsed_s, uint32_t total_s, bool
 /** Play until a new command arrives (left in the queue for media_task). Loops at end of file. */
 static void play_video(const char *path) {
     if (!ensure_decoders() || !video_begin()) {
-        ui_message("Out of memory");
+        ui_message("Sem memória");
         return;
     }
     /* Fresh pipeline: all slots free, reader started on this file. */
@@ -966,7 +967,7 @@ static void play_video(const char *path) {
                 xQueueReceive(s_queue, &c, 0);
                 paused = !paused;
                 s_video_paused = paused;
-                ui_info(paused ? "Paused" : "Playing");
+                ui_info(paused ? "Pausado" : "Tocando");
                 continue;
             }
             if (c.cmd == Cmd::Seek) {
@@ -1005,7 +1006,7 @@ static void play_video(const char *path) {
             continue;
         }
         if (slot == k_slot_end) {
-            ui_message("No MJPEG frames found");
+            ui_message("Nenhum quadro MJPEG encontrado");
             break;
         }
         if (s_slot_gen[slot] != s_seek_gen) {
@@ -1359,7 +1360,7 @@ static void set_title(const char *text) {
             break;
         }
     }
-    lv_obj_set_style_text_font(s_title, ascii ? &lv_font_montserrat_16 : ui_font_get(), 0);
+    lv_obj_set_style_text_font(s_title, ascii ? &pt_montserrat_16 : ui_font_get(), 0);
     lv_label_set_text(s_title, text);
 }
 
@@ -1478,7 +1479,7 @@ static lv_obj_t *round_btn(lv_obj_t *parent, const char *sym, lv_event_cb_t cb, 
     lv_obj_set_style_bg_opa(b, LV_OPA_50, 0);
     lv_obj_set_style_shadow_width(b, 0, 0);
     lv_obj_t *l = lv_label_create(b);
-    lv_obj_set_style_text_font(l, &lv_font_montserrat_24, 0);
+    lv_obj_set_style_text_font(l, &pt_montserrat_24, 0);
     lv_obj_set_style_text_color(l, lv_color_white(), 0);
     lv_label_set_text(l, sym);
     lv_obj_center(l);
@@ -1505,7 +1506,7 @@ static void build_screen(void) {
     lv_obj_clear_flag(s_img, LV_OBJ_FLAG_CLICKABLE);
 
     s_msg = lv_label_create(s_scr);
-    lv_obj_set_style_text_font(s_msg, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_msg, &pt_montserrat_16, 0);
     lv_obj_set_style_text_color(s_msg, lv_color_white(), 0);
     lv_obj_center(s_msg);
 
@@ -1525,19 +1526,19 @@ static void build_screen(void) {
     lv_obj_t *back = lv_btn_create(s_overlay);
     lv_obj_set_size(back, 44, 36);
     lv_obj_t *bl = lv_label_create(back);
-    lv_obj_set_style_text_font(bl, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(bl, &pt_montserrat_20, 0);
     lv_label_set_text(bl, LV_SYMBOL_LEFT);
     lv_obj_center(bl);
     lv_obj_add_event_cb(back, back_cb, LV_EVENT_CLICKED, nullptr);
 
     s_title = lv_label_create(s_overlay);
-    lv_obj_set_style_text_font(s_title, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(s_title, &pt_montserrat_16, 0);
     lv_obj_set_style_text_color(s_title, lv_color_white(), 0);
     lv_obj_set_flex_grow(s_title, 1);
     lv_label_set_long_mode(s_title, LV_LABEL_LONG_DOT);
 
     s_info = lv_label_create(s_overlay);
-    lv_obj_set_style_text_font(s_info, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(s_info, &pt_montserrat_12, 0);
     lv_obj_set_style_text_color(s_info, lv_palette_lighten(LV_PALETTE_GREY, 2), 0);
 
     s_prev_btn = round_btn(s_scr, LV_SYMBOL_LEFT, prev_cb, nullptr);
@@ -1578,7 +1579,7 @@ static void build_screen(void) {
     lv_obj_add_event_cb(s_seek_bar, seek_cb, LV_EVENT_RELEASED, nullptr);
 
     s_time_lbl = lv_label_create(s_bottom);
-    lv_obj_set_style_text_font(s_time_lbl, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_font(s_time_lbl, &pt_montserrat_14, 0);
     lv_obj_set_style_text_color(s_time_lbl, lv_color_white(), 0);
     lv_label_set_text(s_time_lbl, "0:00 / 0:00");
 
@@ -1597,7 +1598,7 @@ static void enter(bool video) {
         s_return_scr = lv_scr_act();
     }
     lv_img_set_src(s_img, nullptr); /* don't flash the previous picture */
-    lv_label_set_text(s_msg, "Loading...");
+    lv_label_set_text(s_msg, "Carregando...");
     lv_obj_clear_flag(s_msg, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(s_prev_btn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(s_next_btn, LV_OBJ_FLAG_HIDDEN);

@@ -39,7 +39,7 @@ static void build_clock_screen(void) {
     lv_obj_set_style_pad_all(s_clock_scr, 8, 0);
     lv_obj_clear_flag(s_clock_scr, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t *bar = status_bar_create(s_clock_scr, "Clock", true);
+    lv_obj_t *bar = status_bar_create(s_clock_scr, "Relógio", true);
     lv_obj_align(bar, LV_ALIGN_TOP_MID, 0, 0);
 
     lv_disp_t *disp = lv_disp_get_default();
@@ -68,7 +68,7 @@ static void build_clock_screen(void) {
     s_time_lbl = lv_label_create(s_clock_scr);
     lv_obj_set_style_text_font(s_time_lbl, ui_font_get(), 0);
     lv_obj_set_style_text_color(s_time_lbl, ui_color_text(), 0);
-    lv_label_set_text(s_time_lbl, "Waiting for time sync (connect WiFi)");
+    lv_label_set_text(s_time_lbl, "Aguardando a hora (conecte o Wi-Fi)");
     lv_obj_align(s_time_lbl, LV_ALIGN_BOTTOM_MID, 0, -4);
 
     (void)lv_timer_create(clock_timer_cb, 250, nullptr);

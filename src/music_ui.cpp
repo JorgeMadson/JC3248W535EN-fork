@@ -1,4 +1,5 @@
 #include "music_ui.h"
+#include "fontes_pt.h"
 
 #include <dirent.h>
 #include <esp_heap_caps.h>
@@ -239,12 +240,12 @@ static void add_row(size_t idx) {
     lv_obj_add_event_cb(row, row_cb, LV_EVENT_CLICKED, (void *)(uintptr_t)idx);
 
     lv_obj_t *icon = lv_label_create(row);
-    lv_obj_set_style_text_font(icon, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(icon, &pt_montserrat_16, 0);
     lv_obj_set_width(icon, 18);
 
     const std::string label = track_label(s_tracks[idx]);
     lv_obj_t *name = lv_label_create(row);
-    set_text_font(name, label.c_str(), &lv_font_montserrat_16);
+    set_text_font(name, label.c_str(), &pt_montserrat_16);
     lv_obj_set_flex_grow(name, 1);
     lv_label_set_long_mode(name, LV_LABEL_LONG_DOT);
     lv_label_set_text(name, label.c_str());
@@ -266,11 +267,11 @@ static void show_tracks(const std::vector<std::string> &tracks) {
         lv_obj_t *empty = lv_label_create(s_list);
         lv_obj_set_width(empty, LV_PCT(100));
         lv_label_set_long_mode(empty, LV_LABEL_LONG_WRAP);
-        lv_obj_set_style_text_font(empty, &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(empty, &pt_montserrat_16, 0);
         lv_obj_set_style_text_color(empty, ui_color_text_muted(), 0);
         lv_obj_set_style_pad_all(empty, 16, 0);
-        lv_label_set_text(empty, sd_card_mounted() ? "No MP3 files found.\n\nCopy music to the /music folder on the SD card."
-                                                   : "No SD card");
+        lv_label_set_text(empty, sd_card_mounted() ? "Nenhum MP3 encontrado.\n\nCopie músicas para a pasta /music do cartão SD."
+                                                   : "Sem cartão SD");
     }
     lv_obj_scroll_to_y(s_list, 0, LV_ANIM_OFF);
 }
@@ -373,7 +374,7 @@ static void lyrics_note(const char *text, bool retry) {
     lv_obj_set_width(lbl, LV_PCT(100));
     lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(lbl, &pt_montserrat_16, 0);
     lv_obj_set_style_text_color(lbl, ui_color_text_muted(), 0);
     lv_label_set_text(lbl, text);
     if (retry) {
@@ -381,7 +382,7 @@ static void lyrics_note(const char *text, bool retry) {
         lv_obj_set_style_shadow_width(btn, 0, 0);
         lv_obj_add_event_cb(btn, lyrics_retry_cb, LV_EVENT_CLICKED, nullptr);
         lv_obj_t *bl = lv_label_create(btn);
-        lv_label_set_text(bl, LV_SYMBOL_REFRESH "  Search again");
+        lv_label_set_text(bl, LV_SYMBOL_REFRESH "  Buscar de novo");
     }
     lv_obj_scroll_to_y(s_lyr, 0, LV_ANIM_OFF);
 }
@@ -421,7 +422,7 @@ static void lyrics_show(LyricsResult *r) {
         lv_obj_set_width(lbl, LV_PCT(100));
         lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
         lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, 0);
-        lv_obj_set_style_text_font(lbl, cjk ? ui_font_get() : &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(lbl, cjk ? ui_font_get() : &pt_montserrat_16, 0);
         lv_obj_set_style_text_color(lbl, synced ? ui_color_text_muted() : ui_color_text(), 0);
         lv_label_set_text(lbl, text);
         if (synced) {
@@ -438,14 +439,14 @@ static void lyrics_show(LyricsResult *r) {
 static void lyrics_load(const AudioStatus &st, bool retry) {
     s_lyr_id++;
     if (st.stream) {
-        lyrics_note("No lyrics for internet radio", false);
+        lyrics_note("Sem letra para rádio da internet", false);
         return;
     }
     if (st.path.empty() || st.error) {
-        lyrics_note("Lyrics appear here when a song plays", false);
+        lyrics_note("A letra aparece aqui quando uma música toca", false);
         return;
     }
-    lyrics_note("Looking for lyrics...", false);
+    lyrics_note("Buscando a letra...", false);
     lyrics_request(st.path, st.title, st.artist, st.dur_s, s_lyr_id, retry);
 }
 
@@ -547,10 +548,10 @@ static void refresh(void) {
     if (st.path != s_shown_path || st.title != s_shown_title) {
         s_shown_path = st.path;
         s_shown_title = st.title;
-        const char *title = st.path.empty() ? "Not playing" : st.title.c_str();
-        set_text_font(s_title, title, &lv_font_montserrat_20);
+        const char *title = st.path.empty() ? "Nada tocando" : st.title.c_str();
+        set_text_font(s_title, title, &pt_montserrat_20);
         lv_label_set_text(s_title, title); /* only on change: restarts the scroll */
-        set_text_font(s_artist, st.artist.c_str(), &lv_font_montserrat_16);
+        set_text_font(s_artist, st.artist.c_str(), &pt_montserrat_16);
         lv_label_set_text(s_artist, st.artist.c_str());
 
         int found = -1;
@@ -573,9 +574,9 @@ static void refresh(void) {
 
     char buf[64];
     if (st.error && st.state == AudioState::Stopped) {
-        set_text_if_changed(s_info, "Could not play this file");
+        set_text_if_changed(s_info, "Não deu para tocar este arquivo");
     } else if (st.sample_rate) {
-        snprintf(buf, sizeof(buf), "%lu.%lu kHz  %lu kbps\nTrack %u of %u", (unsigned long)(st.sample_rate / 1000),
+        snprintf(buf, sizeof(buf), "%lu.%lu kHz  %lu kbps\nFaixa %u de %u", (unsigned long)(st.sample_rate / 1000),
                  (unsigned long)(st.sample_rate % 1000 / 100), (unsigned long)st.bitrate_kbps, (unsigned)(st.index + 1),
                  (unsigned)st.count);
         set_text_if_changed(s_info, buf);
@@ -678,7 +679,7 @@ static lv_obj_t *add_ctrl_btn(lv_obj_t *parent, const char *symbol, lv_coord_t s
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_add_event_cb(btn, cb, LV_EVENT_CLICKED, nullptr);
     lv_obj_t *lbl = lv_label_create(btn);
-    lv_obj_set_style_text_font(lbl, size >= 52 ? &lv_font_montserrat_24 : &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(lbl, size >= 52 ? &pt_montserrat_24 : &pt_montserrat_20, 0);
     lv_label_set_text(lbl, symbol);
     lv_obj_center(lbl);
     return btn;
@@ -696,7 +697,7 @@ static lv_obj_t *add_plain_row(lv_obj_t *parent) {
 
 static lv_obj_t *add_small_label(lv_obj_t *parent) {
     lv_obj_t *lbl = lv_label_create(parent);
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(lbl, &pt_montserrat_12, 0);
     lv_obj_set_style_text_color(lbl, ui_color_text_muted(), 0);
     return lbl;
 }
@@ -727,7 +728,7 @@ static void build_screen(void) {
     lv_obj_set_flex_flow(s_scr, LV_FLEX_FLOW_COLUMN);
     lv_obj_clear_flag(s_scr, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t *bar = status_bar_create(s_scr, "Music", true);
+    lv_obj_t *bar = status_bar_create(s_scr, "Música", true);
     lv_obj_t *shuffle = status_bar_add_action(bar, LV_SYMBOL_SHUFFLE, shuffle_cb, nullptr);
     style_shuffle_btn(shuffle, settings_get().shuffle);
     (void)status_bar_add_action(bar, LV_SYMBOL_REFRESH, refresh_cb, nullptr);
@@ -759,7 +760,7 @@ static void build_screen(void) {
     lv_obj_set_style_bg_color(cover, lv_palette_lighten(LV_PALETTE_PINK, 4), 0);
     lv_obj_clear_flag(cover, LV_OBJ_FLAG_SCROLLABLE);
     s_cover_icon = lv_label_create(cover);
-    lv_obj_set_style_text_font(s_cover_icon, &lv_font_montserrat_30, 0);
+    lv_obj_set_style_text_font(s_cover_icon, &pt_montserrat_30, 0);
     lv_obj_set_style_text_color(s_cover_icon, lv_palette_main(LV_PALETTE_PINK), 0);
     lv_label_set_text(s_cover_icon, LV_SYMBOL_AUDIO);
     lv_obj_center(s_cover_icon);
@@ -816,7 +817,7 @@ static void build_screen(void) {
     lv_obj_set_style_pad_row(right, 6, 0);
     lv_obj_clear_flag(right, LV_OBJ_FLAG_SCROLLABLE);
 
-    static const char *k_view_map[] = {"Lyrics", "Tracks", ""};
+    static const char *k_view_map[] = {"Letra", "Faixas", ""};
     s_view_bm = lv_btnmatrix_create(right);
     lv_btnmatrix_set_map(s_view_bm, k_view_map);
     lv_btnmatrix_set_btn_ctrl_all(s_view_bm, LV_BTNMATRIX_CTRL_CHECKABLE);
@@ -837,7 +838,7 @@ static void build_screen(void) {
     lv_obj_set_scroll_dir(s_lyr, LV_DIR_VER);
     lv_obj_add_event_cb(s_lyr, lyrics_scroll_cb, LV_EVENT_SCROLL_BEGIN, nullptr);
     lv_obj_add_event_cb(s_lyr, lyrics_scroll_cb, LV_EVENT_SCROLL_END, nullptr);
-    lyrics_note("Lyrics appear here when a song plays", false);
+    lyrics_note("A letra aparece aqui quando uma música toca", false);
 
     s_list = lv_obj_create(right);
     ui_style_card(s_list);

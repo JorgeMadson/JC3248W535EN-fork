@@ -1,4 +1,5 @@
 #include "volume_ui.h"
+#include "fontes_pt.h"
 
 #include "app_settings.h"
 #include "serial_log.h"
@@ -62,7 +63,7 @@ lv_obj_t *volume_ui_create(lv_obj_t *parent) {
     lv_obj_add_event_cb(slider, volume_cb, LV_EVENT_RELEASED, nullptr);
 
     lv_obj_t *value = lv_label_create(row);
-    lv_obj_set_style_text_font(value, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(value, &pt_montserrat_12, 0);
     lv_obj_set_style_text_color(value, ui_color_text_muted(), 0);
     lv_obj_set_width(value, 32);
     lv_obj_set_style_text_align(value, LV_TEXT_ALIGN_RIGHT, 0);

@@ -120,7 +120,7 @@ static void connect_btn_cb(lv_event_t *e) {
     s_pending_password = lv_textarea_get_text(s_pwd_ta);
     close_password_dialog();
 
-    set_status_text("Connecting...");
+    set_status_text("Conectando...");
     /* Connecting runs from loop() (wifi_ui_loop), not the LVGL task. */
     s_pending_connect = true;
 }
@@ -182,7 +182,7 @@ static void show_password_dialog(const char *ssid) {
 
     lv_obj_t *title = lv_label_create(panel);
     lv_obj_set_style_text_font(title, ui_font_get(), 0);
-    lv_label_set_text_fmt(title, "Password for\n%s", ssid);
+    lv_label_set_text_fmt(title, "Senha de\n%s", ssid);
     lv_label_set_long_mode(title, LV_LABEL_LONG_WRAP);
     lv_obj_set_width(title, LV_PCT(100));
     /* Keep long SSIDs from consuming the whole band above the keyboard */
@@ -201,7 +201,7 @@ static void show_password_dialog(const char *ssid) {
     lv_obj_set_style_radius(s_pwd_ta, 4, 0);
     lv_textarea_set_one_line(s_pwd_ta, true);
     lv_textarea_set_password_mode(s_pwd_ta, true);
-    lv_textarea_set_placeholder_text(s_pwd_ta, "Password (empty if open)");
+    lv_textarea_set_placeholder_text(s_pwd_ta, "Senha (vazio se for aberta)");
     lv_obj_add_event_cb(s_pwd_ta, pwd_ta_clicked_cb, LV_EVENT_CLICKED, nullptr);
 
     lv_obj_t *row = lv_obj_create(panel);
@@ -218,7 +218,7 @@ static void show_password_dialog(const char *ssid) {
     lv_obj_set_flex_grow(btn_ok, 1);
     lv_obj_t *lbl_ok = lv_label_create(btn_ok);
     lv_obj_set_style_text_font(lbl_ok, ui_font_get(), 0);
-    lv_label_set_text(lbl_ok, "Connect");
+    lv_label_set_text(lbl_ok, "Conectar");
     lv_obj_center(lbl_ok);
     lv_obj_add_event_cb(btn_ok, connect_btn_cb, LV_EVENT_CLICKED, nullptr);
 
@@ -227,7 +227,7 @@ static void show_password_dialog(const char *ssid) {
     lv_obj_set_flex_grow(btn_cancel, 1);
     lv_obj_t *lbl_cancel = lv_label_create(btn_cancel);
     lv_obj_set_style_text_font(lbl_cancel, ui_font_get(), 0);
-    lv_label_set_text(lbl_cancel, "Cancel");
+    lv_label_set_text(lbl_cancel, "Cancelar");
     lv_obj_center(lbl_cancel);
     lv_obj_add_event_cb(btn_cancel, cancel_btn_cb, LV_EVENT_CLICKED, nullptr);
 
@@ -252,7 +252,7 @@ static void list_item_cb(lv_event_t *e) {
         s_pending_ssid = s_results[idx].ssid;
         s_pending_password = pwd.c_str();
         s_pending_connect = true;
-        set_status_text("Connecting...");
+        set_status_text("Conectando...");
         return;
     }
     show_password_dialog(s_results[idx].ssid.c_str());
@@ -266,7 +266,7 @@ static void rebuild_list_cb(void *user_data) {
     lv_obj_clean(s_list);
 
     if (s_results.empty()) {
-        lv_obj_t *hint = lv_list_add_btn(s_list, LV_SYMBOL_WARNING, "No networks - tap Scan");
+        lv_obj_t *hint = lv_list_add_btn(s_list, LV_SYMBOL_WARNING, "Nenhuma rede - toque em Procurar");
         lv_obj_clear_flag(hint, LV_OBJ_FLAG_CLICKABLE);
     } else {
         for (size_t i = 0; i < s_results.size(); i++) {
@@ -282,7 +282,7 @@ static void rebuild_list_cb(void *user_data) {
         }
     }
 
-    set_status_text("Tap a network, enter password, Connect");
+    set_status_text("Toque numa rede, digite a senha e Conectar");
     if (s_scan_btn) {
         lv_obj_clear_state(s_scan_btn, LV_STATE_DISABLED);
     }
@@ -294,7 +294,7 @@ static void scan_btn_cb(lv_event_t *e) {
         return;
     }
     s_scan_requested = true;
-    set_status_text("Scanning...");
+    set_status_text("Procurando...");
     if (s_scan_btn) {
         lv_obj_add_state(s_scan_btn, LV_STATE_DISABLED);
     }
@@ -378,7 +378,7 @@ static std::string connected_msg(void) {
     char ssid[33], ip[16];
     wifi_net_ssid(ssid, sizeof(ssid));
     wifi_net_ip(ip, sizeof(ip));
-    return std::string("Connected: ") + ssid + "\nIP " + ip;
+    return std::string("Conectado: ") + ssid + "\nIP " + ip;
 }
 
 static void poll_connection(void) {
@@ -407,7 +407,7 @@ static void poll_connection(void) {
             if (!wifi_store_autoconnect_active()) {
                 s_conn = ConnState::Failed;
                 bsp_display_lock(0);
-                set_status_text("Saved WiFi failed - tap Scan");
+                set_status_text("Rede salva falhou - toque em Procurar");
                 if (s_status_lbl) {
                     lv_obj_set_style_text_font(s_status_lbl, ui_font_get(), 0);
                 }
@@ -437,7 +437,7 @@ static void poll_connection(void) {
         if (now_ms() - s_connect_start_ms > 20000) {
             s_conn = ConnState::Failed;
             bsp_display_lock(0);
-            set_status_text("Connection failed / timeout");
+            set_status_text("Falha ao conectar / tempo esgotado");
             if (s_status_lbl) {
                 lv_obj_set_style_text_font(s_status_lbl, ui_font_get(), 0);
             }
@@ -451,7 +451,7 @@ static void poll_connection(void) {
         s_conn = ConnState::Idle;
         clock_ui_on_wifi_lost();
         bsp_display_lock(0);
-        set_status_text("WiFi lost - reconnecting...");
+        set_status_text("Wi-Fi caiu - reconectando...");
         if (s_status_lbl) {
             lv_obj_set_style_text_font(s_status_lbl, ui_font_get(), 0);
         }
@@ -481,13 +481,13 @@ void wifi_ui_init(void) {
     lv_obj_set_flex_align(root, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
     lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);
 
-    (void)status_bar_create(root, "WiFi setup", true);
+    (void)status_bar_create(root, "Wi-Fi", true);
 
     s_status_lbl = lv_label_create(root);
     lv_label_set_long_mode(s_status_lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_width(s_status_lbl, LV_PCT(100));
     lv_obj_set_style_text_font(s_status_lbl, ui_font_get(), 0);
-    set_status_text("Tap Scan to find networks");
+    set_status_text("Toque em Procurar para achar redes");
 
     s_list = lv_list_create(root);
     lv_obj_set_width(s_list, LV_PCT(100));
@@ -498,7 +498,7 @@ void wifi_ui_init(void) {
     lv_obj_set_width(s_scan_btn, LV_PCT(100));
     lv_obj_t *scan_lbl = lv_label_create(s_scan_btn);
     lv_obj_set_style_text_font(scan_lbl, ui_font_get(), 0);
-    lv_label_set_text(scan_lbl, LV_SYMBOL_REFRESH " Scan networks");
+    lv_label_set_text(scan_lbl, LV_SYMBOL_REFRESH " Procurar redes");
     lv_obj_center(scan_lbl);
     lv_obj_add_event_cb(s_scan_btn, scan_btn_cb, LV_EVENT_CLICKED, nullptr);
 }
@@ -521,7 +521,7 @@ void wifi_ui_loop(void) {
             s_connect_start_ms = now_ms();
             s_connect_from_manual = false;
             bsp_display_lock(0);
-            set_status_text("Connecting to saved WiFi...");
+            set_status_text("Conectando na rede salva...");
             bsp_display_unlock();
         }
     }
@@ -540,7 +540,7 @@ void wifi_ui_loop(void) {
             s_conn = ConnState::Failed;
             s_connect_from_manual = false;
             bsp_display_lock(0);
-            set_status_text("Invalid SSID");
+            set_status_text("Nome de rede inválido");
             bsp_display_unlock();
             return;
         }

@@ -1,4 +1,5 @@
 #include "ambient_ui.h"
+#include "fontes_pt.h"
 
 #include <esp_heap_caps.h>
 #include <esp_jpeg_dec.h>
@@ -100,7 +101,7 @@ static void read_info(Info *in) {
         struct tm ti;
         localtime_r(&now, &ti);
         settings_format_hm(in->time, sizeof(in->time), &ti, true);
-        strftime(in->date, sizeof(in->date), "%A, %B %d", &ti);
+        strftime(in->date, sizeof(in->date), "%d/%m/%Y", &ti);
     } else {
         strlcpy(in->time, "--:--", sizeof(in->time));
     }
@@ -175,23 +176,23 @@ static void build_overlay_widgets(void) {
 
     lv_obj_t *tp = make_panel(s_ov_scr);
     lv_obj_align(tp, LV_ALIGN_TOP_LEFT, 14, 14);
-    s_time = make_label(tp, &lv_font_montserrat_48);
-    s_date = make_label(tp, &lv_font_montserrat_18);
+    s_time = make_label(tp, &pt_montserrat_48);
+    s_date = make_label(tp, &pt_montserrat_18);
 
     lv_obj_t *wp = make_panel(s_ov_scr);
     lv_obj_align(wp, LV_ALIGN_BOTTOM_LEFT, 14, -14);
-    s_temp = make_label(wp, &lv_font_montserrat_48);
-    s_cond = make_label(wp, &lv_font_montserrat_22);
-    s_loc = make_label(wp, &lv_font_montserrat_16);
-    s_extra = make_label(wp, &lv_font_montserrat_16);
+    s_temp = make_label(wp, &pt_montserrat_48);
+    s_cond = make_label(wp, &pt_montserrat_22);
+    s_loc = make_label(wp, &pt_montserrat_16);
+    s_extra = make_label(wp, &pt_montserrat_16);
 
     s_air_panel = make_panel(s_ov_scr);
     lv_obj_align(s_air_panel, LV_ALIGN_BOTTOM_RIGHT, -14, -14);
     lv_obj_set_style_text_align(s_air_panel, LV_TEXT_ALIGN_RIGHT, 0);
-    lv_obj_t *cap = make_label(s_air_panel, &lv_font_montserrat_14);
+    lv_obj_t *cap = make_label(s_air_panel, &pt_montserrat_14);
     lv_label_set_text(cap, "Radon, 24 h");
-    s_radon = make_label(s_air_panel, &lv_font_montserrat_28);
-    s_radon_lvl = make_label(s_air_panel, &lv_font_montserrat_16);
+    s_radon = make_label(s_air_panel, &pt_montserrat_28);
+    s_radon_lvl = make_label(s_air_panel, &pt_montserrat_16);
 }
 
 static bool has_non_ascii(const char *s) {
@@ -205,7 +206,7 @@ static bool has_non_ascii(const char *s) {
 
 static void fill_overlay_widgets(const Info &in) {
     lv_label_set_text(s_time, in.time);
-    lv_label_set_text(s_date, in.date[0] ? in.date : "Waiting for time sync");
+    lv_label_set_text(s_date, in.date[0] ? in.date : "Aguardando a hora");
     const char *deg = in.fahrenheit ? "\xC2\xB0" "F" : "\xC2\xB0" "C";
     if (in.wvalid) {
         /* snprintf, not lv_label_set_text_fmt: LVGL's printf is built without float support. */
@@ -213,13 +214,13 @@ static void fill_overlay_widgets(const Info &in) {
         snprintf(buf, sizeof(buf), "%.0f%s", in.temp, deg);
         lv_label_set_text(s_temp, buf);
         lv_label_set_text(s_cond, weather_code_text(in.code));
-        lv_obj_set_style_text_font(s_loc, has_non_ascii(in.location) ? ui_font_get() : &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(s_loc, has_non_ascii(in.location) ? ui_font_get() : &pt_montserrat_16, 0);
         lv_label_set_text(s_loc, in.location);
-        snprintf(buf, sizeof(buf), "Feels %.0f%s   Humidity %d%%", in.feels, deg, in.humidity);
+        snprintf(buf, sizeof(buf), "Sensação %.0f%s   Umidade %d%%", in.feels, deg, in.humidity);
         lv_label_set_text(s_extra, buf);
     } else {
         lv_label_set_text(s_temp, "--");
-        lv_label_set_text(s_cond, in.wifi ? "Loading weather..." : "No Wi-Fi");
+        lv_label_set_text(s_cond, in.wifi ? "Carregando o clima..." : "Sem Wi-Fi");
         lv_label_set_text(s_loc, "");
         lv_label_set_text(s_extra, "");
     }

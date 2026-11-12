@@ -1,4 +1,5 @@
 #include "status_bar.h"
+#include "fontes_pt.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -118,10 +119,10 @@ lv_obj_t *status_bar_create(lv_obj_t *parent, const char *title, bool show_home)
     lv_obj_set_flex_flow(b.actions, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_column(b.actions, 6, 0);
 
-    b.weather = make_info_label(b.bar, &lv_font_montserrat_16, "");
+    b.weather = make_info_label(b.bar, &pt_montserrat_16, "");
     lv_obj_set_style_text_color(b.weather, ui_color_text_muted(), 0);
-    b.wifi = make_info_label(b.bar, &lv_font_montserrat_16, LV_SYMBOL_WIFI);
-    b.time = make_info_label(b.bar, &lv_font_montserrat_20, "--:--");
+    b.wifi = make_info_label(b.bar, &pt_montserrat_16, LV_SYMBOL_WIFI);
+    b.time = make_info_label(b.bar, &pt_montserrat_20, "--:--");
 
     lv_obj_add_event_cb(lv_obj_get_screen(b.bar), screen_loaded_cb, LV_EVENT_SCREEN_LOADED, nullptr);
     lv_obj_add_event_cb(b.bar, bar_deleted_cb, LV_EVENT_DELETE, nullptr);
@@ -148,7 +149,7 @@ lv_obj_t *status_bar_add_action(lv_obj_t *bar, const char *symbol, lv_event_cb_t
     lv_obj_set_size(btn, 44, 36);
     lv_obj_set_style_pad_all(btn, 0, 0);
     lv_obj_t *lbl = lv_label_create(btn);
-    lv_obj_set_style_text_font(lbl, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(lbl, &pt_montserrat_20, 0);
     lv_label_set_text(lbl, symbol);
     lv_obj_center(lbl);
     lv_obj_add_event_cb(btn, cb, LV_EVENT_CLICKED, user_data);

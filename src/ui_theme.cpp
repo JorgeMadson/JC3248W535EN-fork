@@ -1,4 +1,5 @@
 #include "ui_theme.h"
+#include "fontes_pt.h"
 
 void ui_style_segmented(lv_obj_t *bm) {
     lv_obj_set_style_bg_color(bm, ui_color_track(), LV_PART_MAIN);
@@ -8,7 +9,7 @@ void ui_style_segmented(lv_obj_t *bm) {
     lv_obj_set_style_pad_all(bm, 3, LV_PART_MAIN);
     lv_obj_set_style_pad_gap(bm, 3, LV_PART_MAIN);
 
-    lv_obj_set_style_text_font(bm, &lv_font_montserrat_14, LV_PART_ITEMS);
+    lv_obj_set_style_text_font(bm, &pt_montserrat_14, LV_PART_ITEMS);
     lv_obj_set_style_text_color(bm, ui_color_text_muted(), LV_PART_ITEMS);
     lv_obj_set_style_bg_opa(bm, LV_OPA_TRANSP, LV_PART_ITEMS);
     lv_obj_set_style_border_width(bm, 0, LV_PART_ITEMS);
