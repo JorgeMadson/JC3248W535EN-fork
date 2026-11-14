@@ -11,6 +11,7 @@
 #include "breakout_ui.h"
 #include "placar_ui.h"
 #include "clock_ui.h"
+#include "doom_ui.h"
 #include "files_ui.h"
 #include "music_ui.h"
 #include "radio_ui.h"
@@ -69,7 +70,9 @@ static void home_timer_cb(lv_timer_t *t) {
     const time_t now = time(nullptr);
     if (now < 1700000000) {
         status_bar_set_title(s_bar, "Início");
-        lv_label_set_text(s_clock_tile_time, "--:--");
+        if (s_clock_tile_time) {
+            lv_label_set_text(s_clock_tile_time, "--:--");
+        }
         return;
     }
     struct tm ti;
@@ -77,8 +80,10 @@ static void home_timer_cb(lv_timer_t *t) {
     char buf[24];
     strftime(buf, sizeof(buf), "%a, %b %d", &ti);
     status_bar_set_title(s_bar, buf);
-    settings_format_hm(buf, sizeof(buf), &ti, false);
-    lv_label_set_text(s_clock_tile_time, buf);
+    if (s_clock_tile_time) { /* Relógio saiu da tela inicial (lugar do Freedoom) */
+        settings_format_hm(buf, sizeof(buf), &ti, false);
+        lv_label_set_text(s_clock_tile_time, buf);
+    }
 }
 
 static void open_ambient(void) {
@@ -146,8 +151,9 @@ void home_ui_init(void) {
 
     (void)add_app_tile(apps, LV_SYMBOL_WIFI, &pt_montserrat_30, "Wi-Fi", lv_palette_main(LV_PALETTE_BLUE),
                        wifi_ui_open);
-    s_clock_tile_time = add_app_tile(apps, "--:--", &pt_montserrat_20, "Relógio",
-                                     lv_palette_darken(LV_PALETTE_DEEP_ORANGE, 1), clock_ui_open);
+    /* Freedoom no lugar do Relógio (a hora continua na barra de status; fica o código do Relógio). */
+    (void)add_app_tile(apps, LV_SYMBOL_GPS, &pt_montserrat_30, "Freedoom", lv_palette_darken(LV_PALETTE_BROWN, 1),
+                       doom_ui_open);
     s_weather_tile_temp = add_app_tile(apps, weather_ui_tile_text(), &pt_montserrat_22, "Clima",
                                        lv_palette_main(LV_PALETTE_TEAL), weather_ui_open);
     (void)add_app_tile(apps, LV_SYMBOL_DIRECTORY, &pt_montserrat_30, "Arquivos", lv_palette_main(LV_PALETTE_AMBER),

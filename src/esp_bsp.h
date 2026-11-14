@@ -92,6 +92,12 @@ lv_disp_t *bsp_display_start_with_config(const bsp_display_cfg_t *cfg);
 bool bsp_display_lock(uint32_t timeout_ms);
 
 /**
+ * The touch controller, for apps that read it themselves (Freedoom: two fingers). Read it with the
+ * display lock held, so it doesn't race LVGL's own reads; coordinates come rotated like LVGL's.
+ */
+esp_lcd_touch_handle_t bsp_touch_handle(void);
+
+/**
  * @brief Give LVGL mutex
  *
  */

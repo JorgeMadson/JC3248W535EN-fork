@@ -27,7 +27,7 @@ extern "C" {
 #define ESP_LCD_TOUCH_VER_MINOR    (1)
 #define ESP_LCD_TOUCH_VER_PATCH    (2)
 
-#define CONFIG_ESP_LCD_TOUCH_MAX_POINTS     (1)
+#define CONFIG_ESP_LCD_TOUCH_MAX_POINTS     (2)
 #define CONFIG_ESP_LCD_TOUCH_MAX_BUTTONS    (0)
 
 /**

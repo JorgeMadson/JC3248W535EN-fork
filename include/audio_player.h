@@ -68,4 +68,12 @@ void audio_set_volume(int percent);
 void audio_set_shuffle(bool on);
 
 void audio_get_status(AudioStatus *out);
+
+/**
+ * Raw PCM for games (Freedoom): pauses whatever is playing, sets the I2S rate, and from then on the
+ * caller writes 16-bit stereo frames (L, R, ...) itself. The Settings volume is applied. Writing
+ * blocks until the DMA has room. Music can't be resumed while a game owns the output.
+ */
+bool audio_pcm_begin(uint32_t rate);
+void audio_pcm_write(const int16_t *stereo, size_t frames);
 std::vector<std::string> audio_playlist(void);

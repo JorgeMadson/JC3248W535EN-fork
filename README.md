@@ -1,8 +1,13 @@
 # JC3248W535EN - fork em português + Placar de Mesa
 
 Fork de [Yuanzjls/JC3248W535EN](https://github.com/Yuanzjls/JC3248W535EN) com a interface em
-português (fontes Montserrat com acentos em `src/fontes_pt/`), fuso de Brasília e o app
-**Placar** (`src/placar/`).
+português (fontes Montserrat com acentos em `src/fontes_pt/`), fuso de Brasília, o app
+**Placar** (`src/placar/`) e o **Freedoom** (`src/doom/`, no lugar do Relógio).
+
+O Freedoom compila o motor e o código comum de `JC3248W535/freedoom/` (mesma pasta irmã do
+placar). Precisa do `freedoom1.wad` na raiz do cartão; os saves vão para `/freedoom/`. As
+variáveis do motor ficam na PSRAM (`src/doom/freedoom.lf` +
+`CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY`). O toque passou a ler 2 dedos.
 
 O app Placar compila o código de [JorgeMadson/JC3248W535](https://github.com/JorgeMadson/JC3248W535)
 (`placar-mesa/`). Clone os dois lado a lado:

@@ -907,6 +907,48 @@ void audio_play_stream(const std::string &url, const std::string &name) {
     send(Cmd::PlayStream);
 }
 
+bool audio_pcm_begin(uint32_t rate) {
+    ensure_sync();
+    if (!ensure_started()) {
+        return false;
+    }
+    /* Pause (or, for a station, stop) the player; then its task waits on the queue and never touches
+     * the channel, so it is ours. */
+    for (int i = 0; i < 50; i++) {
+        lock();
+        const AudioState st = s_status.state;
+        unlock();
+        if (st != AudioState::Playing) {
+            break;
+        }
+        if (i == 0) {
+            audio_toggle_pause();
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+    i2s_set_rate(rate);
+    serial_log("[audio] PCM output at %lu Hz", (unsigned long)rate);
+    return true;
+}
+
+void audio_pcm_write(const int16_t *stereo, size_t frames) {
+    if (!s_tx) {
+        return;
+    }
+    static int16_t s_out[512 * 2];
+    const int32_t gain = s_gain_q15;
+    while (frames > 0) {
+        const size_t n = frames < 512 ? frames : 512;
+        for (size_t i = 0; i < n * 2; i++) {
+            s_out[i] = (int16_t)(((int32_t)stereo[i] * gain) >> 15);
+        }
+        size_t written = 0;
+        (void)i2s_channel_write(s_tx, s_out, n * 2 * sizeof(int16_t), &written, portMAX_DELAY);
+        stereo += n * 2;
+        frames -= n;
+    }
+}
+
 void audio_get_status(AudioStatus *out) {
     ensure_sync();
     lock();

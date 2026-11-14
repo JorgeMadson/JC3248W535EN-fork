@@ -21,7 +21,7 @@
 #include "esp_lcd_axs15231b.h"
 
 /*max point num*/
-#define AXS_MAX_TOUCH_NUMBER                (1)
+#define AXS_MAX_TOUCH_NUMBER                (2) /* 2 dedos: o Freedoom anda e atira ao mesmo tempo */
 
 #define LCD_OPCODE_WRITE_CMD                (0x02ULL)
 #define LCD_OPCODE_READ_CMD                 (0x0BULL)
@@ -481,8 +481,10 @@ static esp_err_t touch_axs15231b_read_data(esp_lcd_touch_handle_t tp)
         tp->data.points = p_touch_data->num;
         /* Fill all coordinates */
         for (int i = 0; i < tp->data.points; i++) {
-            tp->data.coords[i].x = ((p_touch_data->x_h & 0x0F) << 8) | p_touch_data->x_l;
-            tp->data.coords[i].y = ((p_touch_data->y_h & 0x0F) << 8) | p_touch_data->y_l;
+            /* Each point is 6 bytes after the 2-byte header; the struct above maps point 0. */
+            const touch_record_struct_t *r = (const touch_record_struct_t *)(data + 6 * i);
+            tp->data.coords[i].x = ((r->x_h & 0x0F) << 8) | r->x_l;
+            tp->data.coords[i].y = ((r->y_h & 0x0F) << 8) | r->y_l;
         }
         portEXIT_CRITICAL(&tp->data.lock);
     }
