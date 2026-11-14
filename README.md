@@ -2,7 +2,7 @@
 
 Fork de [Yuanzjls/JC3248W535EN](https://github.com/Yuanzjls/JC3248W535EN) com a interface em
 português (fontes Montserrat com acentos em `src/fontes_pt/`), fuso de Brasília, o app
-**Placar** (`src/placar/`) e o **Freedoom** (`src/doom/`, no lugar do Relógio).
+**Placar** (`src/placar/`) e o **Freedoom** (`src/doom/`).
 
 O Freedoom compila o motor e o código comum de `JC3248W535/freedoom/` (mesma pasta irmã do
 placar). Precisa do `freedoom1.wad` na raiz do cartão; os saves vão para `/freedoom/`. As
@@ -19,6 +19,18 @@ dev/
 ```
 
 Ou aponte outro caminho com `-DPLACAR_DIR=...` (variável do CMake em `src/CMakeLists.txt`).
+
+**Tela inicial personalizável**: em Ajustes > Tela inicial dá para mudar a ordem dos apps e
+mostrar ou esconder cada um (o Relógio e o Air vêm escondidos; Ajustes nunca some). Fica no
+`/settings.ini` do cartão (`home_ordem=` e `home_ocultos=`). A lista de apps é o catálogo em
+`src/home_ui.cpp`; a lógica de ordem fica em `src/home_apps.cpp`, sem LVGL, testada no PC:
+
+```
+distrobox enter dev-gcc -- test/home_apps/rodar.sh
+```
+
+O ícone do Freedoom é um desenho original em pixel art (`tools/icone_freedoom.py` gera
+`src/icone_freedoom.c`), sem nada do Doom.
 
 Instalação pelo navegador: https://jorgemadson.github.io/JC3248W535/
 

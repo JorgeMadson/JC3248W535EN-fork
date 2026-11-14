@@ -10,3 +10,6 @@ void home_ui_show(void);
 
 /** Add a "Home" button to an app's header; tapping it returns to the home screen. */
 lv_obj_t *home_ui_add_home_button(lv_obj_t *parent);
+
+/** Ajustes > Tela inicial: mudar a ordem e mostrar/esconder apps. LVGL context. */
+void home_ui_open_editor(void);

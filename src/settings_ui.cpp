@@ -1,4 +1,5 @@
 #include "app_settings.h"
+#include "home_ui.h"
 #include "fontes_pt.h"
 #include "platform_time.h"
 
@@ -320,6 +321,17 @@ static void build_screen(void) {
     s_ambient_bm = add_segmented(row, k_ambient_map, am == 0 ? 0 : am == 1 ? 1 : am == 3 ? 2 : am == 5 ? 3 : 4, ambient_cb);
 
     /* System: live CPU and memory */
+    /* Tela inicial: ordem e quais apps aparecem (home_ui.cpp) */
+    row = add_row(list, "Tela inicial");
+    lv_obj_t *org = lv_btn_create(row);
+    lv_obj_set_height(org, 36);
+    lv_obj_set_flex_grow(org, 1);
+    lv_obj_t *org_l = lv_label_create(org);
+    lv_obj_set_style_text_font(org_l, ui_font_get(), 0);
+    lv_label_set_text(org_l, "Organizar apps " LV_SYMBOL_RIGHT);
+    lv_obj_center(org_l);
+    lv_obj_add_event_cb(org, [](lv_event_t *) { home_ui_open_editor(); }, LV_EVENT_CLICKED, nullptr);
+
     lv_obj_t *sys = lv_obj_create(list);
     ui_style_card(sys);
     lv_obj_set_size(sys, LV_PCT(100), LV_SIZE_CONTENT);

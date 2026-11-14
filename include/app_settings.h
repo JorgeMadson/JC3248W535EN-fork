@@ -31,6 +31,12 @@ void settings_set_clock_24h(bool on);
 /** Idle minutes on Home before the ambient screen (0 = off; 1, 3, 5 or 10). Saves. */
 void settings_set_ambient_min(int minutes);
 
+/** Tela inicial: ordem dos apps e apps escondidos, como salvos (nullptr = nada salvo; ver home_apps.h). */
+const char *settings_home_order(void);
+const char *settings_home_hidden(void);
+/** Guarda a ordem e os escondidos (listas de ids separados por vírgula). Saves. */
+void settings_set_home(const char *order, const char *hidden);
+
 /** "14:05", or in 12h mode "2:05 PM" (with_ampm) / "2:05" (without). */
 void settings_format_hm(char *buf, size_t n, const struct tm *ti, bool with_ampm);
 

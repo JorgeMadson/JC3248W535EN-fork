@@ -19,12 +19,17 @@
  *   ambient=3         ; idle minutes on Home before the ambient screen: 0 (off), 1, 3, 5, 10
  *   volume=50         ; speaker volume %, 0..100 (Music app)
  *   shuffle=on        ; Music app plays in random order: on | off
+ *   home_ordem=placar,freedoom,...   ; tela inicial: ids dos apps na ordem (home_apps.h)
+ *   home_ocultos=relogio,air         ; tela inicial: apps escondidos
  * Timezone is kept separately in /timezone.ini (timezone_ini.cpp).
  */
 static const char *k_path = "/settings.ini";
 static const int k_min_brightness = 10; /* never let the slider black out the screen */
 
 static AppSettings s_settings = {100, TempUnits::Auto, true, 3, 50, true};
+/* Tela inicial (ver home_apps.h); vazio e sem "tem" = nada salvo. */
+static std::string s_home_order, s_home_hidden;
+static bool s_has_home_order = false, s_has_home_hidden = false;
 
 static const char *units_name(TempUnits u) {
     return u == TempUnits::Celsius ? "celsius" : u == TempUnits::Fahrenheit ? "fahrenheit" : "auto";
@@ -44,11 +49,18 @@ static int clamp_volume(int v) {
 }
 
 static void save(void) {
-    char text[200];
-    snprintf(text, sizeof(text), "[settings]\nbrightness=%d\nunits=%s\nclock=%s\nambient=%d\nvolume=%d\nshuffle=%s\n",
+    char base[200];
+    snprintf(base, sizeof(base), "[settings]\nbrightness=%d\nunits=%s\nclock=%s\nambient=%d\nvolume=%d\nshuffle=%s\n",
              s_settings.brightness, units_name(s_settings.units), s_settings.clock_24h ? "24h" : "12h",
              s_settings.ambient_min, s_settings.volume, s_settings.shuffle ? "on" : "off");
-    if (!sd_write_text(k_path, text)) {
+    std::string text = base;
+    if (s_has_home_order) {
+        text += "home_ordem=" + s_home_order + "\n";
+    }
+    if (s_has_home_hidden) {
+        text += "home_ocultos=" + s_home_hidden + "\n";
+    }
+    if (!sd_write_text(k_path, text.c_str())) {
         serial_log("[settings] cannot write %s", k_path);
         return;
     }
@@ -76,6 +88,12 @@ void settings_load(void) {
             s_settings.volume = clamp_volume(atoi(val.c_str()));
         } else if (key == "shuffle") {
             s_settings.shuffle = !str_ieq(val, "off");
+        } else if (key == "home_ordem") {
+            s_home_order = val;
+            s_has_home_order = true;
+        } else if (key == "home_ocultos") {
+            s_home_hidden = val;
+            s_has_home_hidden = true;
         }
     });
     serial_log("[settings] brightness=%d units=%s clock=%s ambient=%d min volume=%d shuffle=%s", s_settings.brightness,
@@ -132,6 +150,21 @@ void settings_set_ambient_min(int minutes) {
         return;
     }
     s_settings.ambient_min = minutes;
+    save();
+}
+
+const char *settings_home_order(void) {
+    return s_has_home_order ? s_home_order.c_str() : nullptr;
+}
+
+const char *settings_home_hidden(void) {
+    return s_has_home_hidden ? s_home_hidden.c_str() : nullptr;
+}
+
+void settings_set_home(const char *order, const char *hidden) {
+    s_home_order = order ? order : "";
+    s_home_hidden = hidden ? hidden : "";
+    s_has_home_order = s_has_home_hidden = true;
     save();
 }
 
