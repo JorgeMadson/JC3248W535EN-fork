@@ -1,3 +1,24 @@
+# JC3248W535EN - fork em português + Placar de Mesa
+
+Fork de [Yuanzjls/JC3248W535EN](https://github.com/Yuanzjls/JC3248W535EN) com a interface em
+português (fontes Montserrat com acentos em `src/fontes_pt/`), fuso de Brasília e o app
+**Placar** (`src/placar/`).
+
+O app Placar compila o código de [JorgeMadson/JC3248W535](https://github.com/JorgeMadson/JC3248W535)
+(`placar-mesa/`). Clone os dois lado a lado:
+
+```
+dev/
+  JC3248W535/        <- placar-mesa/ fica aqui
+  JC3248W535EN-fork/ <- este repositório
+```
+
+Ou aponte outro caminho com `-DPLACAR_DIR=...` (variável do CMake em `src/CMakeLists.txt`).
+
+Instalação pelo navegador: https://jorgemadson.github.io/JC3248W535/
+
+---
+
 # JC3248W535EN - ESP32-S3 touch panel firmware
 
 Firmware for the Guition JC3248W535EN (a.k.a. "cheap black board"): ESP32-S3, 16 MB flash,
