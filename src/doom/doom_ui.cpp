@@ -168,13 +168,13 @@ bool montar_botoes() {
 
     for (int modo = 0; modo < 2; modo++) {
         lv_canvas_fill_bg(c, lv_color_black(), LV_OPA_COVER);
-        // Mesmas áreas de comum/entrada.c
+        // Mesmas áreas de comum/controles.c
         retangulo(c, 2, 2, 76, 60, 8, "MENU");
         if (modo == 1) {
             retangulo(c, 402, 2, 76, 60, 8, "MAPA");
             retangulo(c, 244, 68, 114, 78, 8, "ARMA");
             retangulo(c, 362, 68, 116, 78, 8, "USAR");
-            retangulo(c, 244, 150, 234, 168, 8, "ATIRAR");
+            retangulo(c, 350, 186, 120, 120, 8, "ATIRAR");
             retangulo(c, 70, 150, 100, 100, LV_RADIUS_CIRCLE, "ANDAR");
         } else {
             retangulo(c, 244, 150, 234, 168, 8, "OK");
