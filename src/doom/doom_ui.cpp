@@ -64,6 +64,9 @@ char s_arg_mb[4];
 constexpr size_t k_mb = 1024 * 1024;
 constexpr size_t k_pedaco_min = 256 * 1024;
 size_t s_zona_alvo = 0;
+// Buffer de leitura do cartão na RAM interna com DMA (ver DG_BufferLeitura em w_file_stdc.c).
+uint8_t *s_buf_leitura = nullptr;
+int s_buf_leitura_tam = 0;
 size_t s_zona_dada = 0;
 
 // Última linha impressa pelo motor (tarefa do Doom escreve, timer do LVGL lê).
@@ -264,6 +267,11 @@ uint8_t *DG_ZonaExtra(int *tamanho) {
     return p;
 }
 
+uint8_t *DG_BufferLeitura(int *tamanho) {
+    *tamanho = s_buf_leitura_tam;
+    return s_buf_leitura;
+}
+
 const char *DG_PastaDados(void) {
     return k_pasta;
 }
@@ -364,6 +372,15 @@ void doom_ui_open(void) {
     serial_log("[doom] abrindo: cartão %s, PSRAM livre %u KB (maior bloco %u KB)", sd_card_mounted() ? "ok" : "ausente",
                unsigned(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024),
                unsigned(heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM) / 1024));
+    // Reserva já o buffer de leitura do WAD: com o jogo rodando a RAM interna com DMA acaba
+    // e o driver do cartão não consegue mais pegar um ("allocate_dma_buf: not enough mem").
+    for (int tam = 4096; tam >= 512 && !s_buf_leitura; tam /= 2) {
+        s_buf_leitura = static_cast<uint8_t *>(heap_caps_aligned_alloc(4, tam, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA));
+        if (s_buf_leitura) s_buf_leitura_tam = tam;
+    }
+    serial_log("[doom] buffer de leitura: %d bytes (RAM interna com DMA livre %u, maior bloco %u)", s_buf_leitura_tam,
+               unsigned(heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA)),
+               unsigned(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA)));
     if (!sd_card_mounted() || !achar_wad()) {
         mostrar_mensagem("Freedoom: jogo não encontrado",
                          "Copie o arquivo freedoom1.wad para a raiz do cartão microSD.\n\n"
